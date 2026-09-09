@@ -1,0 +1,176 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Turmas — Quadro de Horários do IFPI - Campus Barras</title>
+  <link rel="icon" href="/painel_horarios/build/static/img/favicon.gif">
+  <link rel="stylesheet" href="/painel_horarios/build/static/css/main.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="/painel_horarios/build/">
+        <img class="logo-light" src="/painel_horarios/build/static/img/logo.svg" alt="IFPI - Campus Barras">
+        <img class="logo-dark" src="/painel_horarios/build/static/img/logoDark.svg" alt="IFPI - Campus Barras">
+      </a>
+      <nav class="nav">
+        <a href="/painel_horarios/build/">Início</a>
+        <a href="/painel_horarios/build/turma/">Turmas</a>
+        <a href="/painel_horarios/build/professor/">Professores</a>
+        <a href="/painel_horarios/build/sala/">Salas</a>
+        <a href="/painel_horarios/build/cursos/">Cursos</a>
+        <a href="/painel_horarios/build/versoes/">Versões</a>
+        <button id="themeToggle" class="theme-btn" type="button">Tema</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="site-main container">
+    
+  <h1>Turmas por curso</h1>
+  <p>Versão: <strong>2026.2.v1</strong></p>
+
+  <div class="turma-tools">
+    <input type="search" id="turmaSearch" class="turma-search"
+           placeholder="Buscar por curso, turma ou turno…" autocomplete="off">
+    <span class="turma-count" id="turmaCount"></span>
+  </div>
+
+  <div id="turmaList">
+    
+      <section class="curso-block"
+               data-searchable="PEDAGOGIA  NOITE ">
+        <h2 class="curso-title">
+          <a href="/painel_horarios/build/curso/pedagogia/">PEDAGOGIA</a>
+          <span class="curso-count">1</span>
+        </h2>
+
+        <ul class="card-grid">
+          
+            <li class="card turma-card"
+                data-search-text="PEDAGOGIA 1º Período PEDAGOGIA - 1º Período (NOITE) NOITE ">
+              <a href="/painel_horarios/build/turma/pedagogia/pedagogia_1_periodo_noite/" class="turma-link">
+                <span class="turma-rotulo">1º Período</span>
+                <span class="turma-sub">PEDAGOGIA</span>
+                <span class="turma-turno">NOITE</span>
+              </a>
+            </li>
+          
+        </ul>
+      </section>
+    
+      <section class="curso-block"
+               data-searchable="TÉCNICO EM ADMINISTRAÇÃO PROEJA  NOITE ">
+        <h2 class="curso-title">
+          <a href="/painel_horarios/build/curso/tecnico_em_administracao_proeja/">TÉCNICO EM ADMINISTRAÇÃO PROEJA</a>
+          <span class="curso-count">1</span>
+        </h2>
+
+        <ul class="card-grid">
+          
+            <li class="card turma-card"
+                data-search-text="TÉCNICO EM ADMINISTRAÇÃO PROEJA 1º ANO TÉCNICO EM ADMINISTRAÇÃO PROEJA - 1º ANO (NOITE) NOITE ">
+              <a href="/painel_horarios/build/turma/tecnico_em_administracao_proeja/tecnico_em_administracao_proeja_1_ano_noite/" class="turma-link">
+                <span class="turma-rotulo">1º ANO</span>
+                <span class="turma-sub">TÉCNICO EM ADMINISTRAÇÃO PROEJA</span>
+                <span class="turma-turno">NOITE</span>
+              </a>
+            </li>
+          
+        </ul>
+      </section>
+    
+      <section class="curso-block"
+               data-searchable="TÉCNICO SUBSEQUENTE EM MEIO AMBIENTE  NOITE ">
+        <h2 class="curso-title">
+          <a href="/painel_horarios/build/curso/tecnico_subsequente_em_meio_ambiente/">TÉCNICO SUBSEQUENTE EM MEIO AMBIENTE</a>
+          <span class="curso-count">1</span>
+        </h2>
+
+        <ul class="card-grid">
+          
+            <li class="card turma-card"
+                data-search-text="TÉCNICO SUBSEQUENTE EM MEIO AMBIENTE 1º ANO TÉCNICO SUBSEQUENTE EM MEIO AMBIENTE - 1º ANO (NOITE) NOITE ">
+              <a href="/painel_horarios/build/turma/tecnico_subsequente_em_meio_ambiente/tecnico_subsequente_em_meio_ambiente_1_ano_noite/" class="turma-link">
+                <span class="turma-rotulo">1º ANO</span>
+                <span class="turma-sub">TÉCNICO SUBSEQUENTE EM MEIO AMBIENTE</span>
+                <span class="turma-turno">NOITE</span>
+              </a>
+            </li>
+          
+        </ul>
+      </section>
+    
+  </div>
+
+  <div class="turma-empty hidden" id="turmaEmpty">Nenhuma turma encontrada. Tente outro termo.</div>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>Quadro de Horários do IFPI - Campus Barras</p>
+      <p>Desenvolvido por: <a href="https://professordiegocordeiro.com.br">Professor Diego Cordeiro de Oliveira</a></p>
+    </div>
+  </footer>
+
+  <script src="/painel_horarios/build/static/js/main.js"></script>
+  
+<script>
+  (function () {
+    var input = document.getElementById('turmaSearch');
+    var countEl = document.getElementById('turmaCount');
+    var emptyEl = document.getElementById('turmaEmpty');
+    var blocks = Array.prototype.slice.call(document.querySelectorAll('.curso-block'));
+    if (!input || !blocks.length) return;
+
+    function norm(s) {
+      return (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+    }
+
+    function update() {
+      var term = norm(input.value);
+      var totalTurmas = 0;
+      var shownCursos = 0;
+      var shownTurmas = 0;
+
+      blocks.forEach(function (sec) {
+        var cards = Array.prototype.slice.call(sec.querySelectorAll('.turma-card'));
+        totalTurmas += cards.length;
+
+        var secText = norm(sec.getAttribute('data-searchable'));
+        var secMatch = !!term && secText.indexOf(term) !== -1;
+        var visible = 0;
+
+        cards.forEach(function (card) {
+          var cardText = norm(card.getAttribute('data-search-text'));
+          var match = !term || secMatch || cardText.indexOf(term) !== -1;
+          card.style.display = match ? '' : 'none';
+          if (match) visible++;
+        });
+
+        var showSec = !term || secMatch || visible > 0;
+        sec.style.display = showSec ? '' : 'none';
+        if (showSec && cards.length) shownCursos++;
+        shownTurmas += visible;
+      });
+
+      if (countEl) {
+        countEl.textContent = !term
+          ? totalTurmas + ' turmas em ' + blocks.length + ' cursos'
+          : shownTurmas + ' turmas em ' + shownCursos + ' cursos';
+      }
+      if (emptyEl) {
+        emptyEl.classList.toggle('hidden', !term || shownTurmas > 0);
+      }
+    }
+
+    input.addEventListener('input', update);
+    update();
+  })();
+</script>
+
+</body>
+</html>

@@ -12,7 +12,6 @@ from datetime import date, datetime
 from django.core.management.base import BaseCommand, CommandError
 
 from horarios.fet import (
-    get_course_position,
     merge_slots,
     normalize_day,
     normalize_hour_range,
@@ -167,7 +166,6 @@ class Command(BaseCommand):
                 if curso_name not in acurso:
                     acurso[curso_name] = Curso.objects.get_or_create(
                         nome=curso_name,
-                        defaults={"posicao": get_course_position(curso_name)},
                     )[0]
                     aturnos[curso_name] = set()
                 turma, _ = Turma.objects.get_or_create(

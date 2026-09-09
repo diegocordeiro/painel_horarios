@@ -6,8 +6,6 @@ from __future__ import annotations
 
 import re
 
-from .slug import url_slug
-
 DAY_MAP = {
     "Segunda-feira": "Segunda-Feira",
     "Terça-feira": "Terça-Feira",
@@ -31,9 +29,6 @@ DAY_ORDER = [
     "Sexta-Feira",
     "Sábado",
 ]
-
-# Porta de COURSE_POSITIONS.
-from .data.cursos import COURSE_POSITIONS  # noqa: E402
 
 
 def parse_csv_line(line: str) -> list[str]:
@@ -117,10 +112,6 @@ def parse_course_turma_turno(full_name: str) -> tuple[str, str, str]:
         turma = match.group(1).strip()
         turno = (match.group(2) or "").strip()
     return curso, turma, turno
-
-
-def get_course_position(course_name: str) -> int:
-    return COURSE_POSITIONS.get(url_slug(course_name), 9999)
 
 
 def _parse_time_slot(time_value: str):

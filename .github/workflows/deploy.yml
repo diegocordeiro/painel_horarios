@@ -49,7 +49,7 @@ jobs:
 
       - name: Importar horários do FET (CSV)
         run: >
-          python manage.py import_timetable HorarioOficial_timetable.csv
+          python manage.py import_timetable barras_timetable.csv
           --versao "$TIMETABLE_VERSION"
           --inicio "$TIMETABLE_START"
           --atual

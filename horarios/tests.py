@@ -96,27 +96,25 @@ class NormalizeBaseUrlTests(TestCase):
 class ImportTimetableTests(TestCase):
     @classmethod
     def setUpTestData(cls):
-        csv_path = Path(__file__).resolve().parent.parent / "HorarioOficial_timetable.csv"
+        csv_path = Path(__file__).resolve().parent.parent / "barras_timetable.csv"
         cls.csv_path = str(csv_path)
 
     def test_import_from_csv(self):
         call_command("import_timetable", self.csv_path, verbosity=0)
         self.assertGreaterEqual(Versao.objects.count(), 1)
-        self.assertGreater(Curso.objects.count(), 0)
+        self.assertEqual(Curso.objects.count(), 3)
+        self.assertEqual(Turma.objects.count(), 3)
         self.assertGreater(Professor.objects.count(), 0)
         self.assertGreater(Sala.objects.count(), 0)
-        self.assertGreater(Turma.objects.count(), 0)
         self.assertGreater(Aula.objects.count(), 0)
-        self.assertTrue(Turma.objects.filter(nome_completo__contains="Administração").exists())
         # O turno não deve ficar embutido no rótulo da turma.
         self.assertFalse(Turma.objects.filter(rotulo__contains="(").exists())
         # O rótulo da turma fica limpo e o curso é detectado pelo padrão.
         turma = Turma.objects.get(
-            nome_completo="Técnico Integrado em Administração (Integrado) - 1º ADM (Manhã)"
+            nome_completo="TÉCNICO EM ADMINISTRAÇÃO PROEJA - 1º ANO (NOITE)"
         )
-        self.assertEqual(turma.rotulo, "1º ADM")
-        self.assertEqual(turma.curso.nome, "Técnico Integrado em Administração (Integrado)")
+        self.assertEqual(turma.rotulo, "1º ANO")
+        self.assertEqual(turma.curso.nome, "TÉCNICO EM ADMINISTRAÇÃO PROEJA")
         # O turno da grade é registrado no campo turno do curso.
-        adm = Curso.objects.get(nome="Técnico Integrado em Administração (Integrado)")
-        self.assertIn("Manhã", adm.turno)
-        self.assertIn("Tarde", adm.turno)
+        adm = Curso.objects.get(nome="TÉCNICO EM ADMINISTRAÇÃO PROEJA")
+        self.assertEqual(adm.turno, "NOITE")

@@ -67,6 +67,20 @@ a:hover {
 
 .brand img {
   height: 46px;
+  width: auto !important;
+}
+
+/* Alterna a logo conforme o tema claro/escuro */
+.brand .logo-dark {
+  display: none;
+}
+
+[data-theme="dark"] .brand .logo-light {
+  display: none;
+}
+
+[data-theme="dark"] .brand .logo-dark {
+  display: block;
 }
 
 .nav {

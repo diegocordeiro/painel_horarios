@@ -14,9 +14,8 @@ concurrency:
   group: "pages"
   cancel-in-progress: true
 
-env:
-  # As versões publicadas vêm do arquivo horarios/data/versoes/manifest.json
-  # (são reimportadas a cada execução, preservando todo o histórico).
+# As versões publicadas vêm do arquivo horarios/data/versoes/manifest.json
+# (são reimportadas a cada execução, preservando todo o histórico).
 
 jobs:
   build:

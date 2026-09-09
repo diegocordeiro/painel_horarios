@@ -8,7 +8,7 @@
 
   <ul class="curso-grid">
     {% for prof in professores %}
-      <li class="curso-card" style="--tipo: {{ prof.color }}">
+      <li class="curso-card">
         <span class="curso-badge">Professor(a)</span>
         <h2 class="curso-nome">{{ prof.nome }}</h2>
         <a class="curso-link" href="{{ base }}professor/{{ prof.slug }}/">Ver horário →</a>

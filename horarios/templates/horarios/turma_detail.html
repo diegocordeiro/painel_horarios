@@ -5,7 +5,7 @@
     <a href="{{ base }}turma/">Turmas</a> / <a href="{{ base }}curso/{{ curso.slug }}/">{{ curso.nome }}</a> / <span>{{ turma.rotulo|default:turma.nome_completo }}</span>
   </nav>
 
-  <section class="curso-detail-hero" data-tipo="{{ curso.tipo }}">
+  <section class="curso-detail-hero">
     <span class="curso-avatar large">{{ curso.nome|slice:":1" }}</span>
     <div>
       {% if curso.tipo %}<span class="curso-badge">{{ curso.tipo }}</span>{% endif %}

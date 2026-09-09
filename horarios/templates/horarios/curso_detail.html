@@ -5,7 +5,7 @@
     <a href="{{ base }}cursos/">Cursos</a> / <span>{{ curso.nome }}</span>
   </nav>
 
-  <section class="curso-detail-hero" data-tipo="{{ curso.tipo }}">
+  <section class="curso-detail-hero">
     <span class="curso-avatar large">{{ curso.nome|slice:":1" }}</span>
     <div>
       {% if curso.tipo %}<span class="curso-badge">{{ curso.tipo }}</span>{% endif %}

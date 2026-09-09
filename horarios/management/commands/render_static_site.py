@@ -58,7 +58,7 @@ class Command(BaseCommand):
         history.sort(key=lambda v: v.inicio, reverse=True)
 
         site.copy_assets()
-        site.render_home()
+        site.render_home(atual, history)
         site.render_intro(atual, history)
         site.render_versoes(atual, history)
         site.render_turmas(atual, prefix="")

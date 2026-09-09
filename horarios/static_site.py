@@ -200,9 +200,18 @@ class StaticSite:
         self.base = normalize_base_url(base_url)
         self.static_url = self.base + "static/"
 
-    def _ctx(self, **extra):
+    def _ctx(self, prefix="", **extra):
+        """Monta o contexto padrão dos templates.
+
+        ``base`` passa a ser "ciente da versão": em páginas de versões históricas
+        (prefixo ``versoes/<slug>/``) os links internos (menu, listas, grade)
+        apontam para dentro daquela versão. ``root_base`` é a raiz real do site,
+        usada nos links que não devem ser versionados (Início, logo, Cursos,
+        página de Versões e breadcrumb de curso).
+        """
         ctx = {
-            "base": self.base,
+            "base": self.base + prefix,
+            "root_base": self.base,
             "static_url": self.static_url,
             "site_title": "Quadro de Horários do IFPI - Campus Barras",
         }
@@ -216,11 +225,13 @@ class StaticSite:
         out.write_text(html, encoding="utf-8")
 
     # ---------- páginas ----------
-    def render_home(self):
+    def render_home(self, versao_atual, history):
         self._write(
             "index.html",
             "horarios/home.html",
             self._ctx(
+                versao_atual=versao_atual,
+                history=history,
                 cursos_total=Curso.objects.count(),
                 turmas_total=Turma.objects.count(),
                 professores_total=Professor.objects.count(),
@@ -252,7 +263,7 @@ class StaticSite:
         return f"{prefix}{path}" if prefix else path
 
     def render_turmas(self, versao, prefix=""):
-        context = self._ctx(versao=versao, active="turmas")
+        context = self._ctx(prefix=prefix, versao=versao, active="turmas")
         cursos = list(Curso.objects.order_by("posicao", "nome").prefetch_related("turmas"))
         context["cursos"] = cursos
         self._write(self._prefix_path(prefix, "turma/index.html"), "horarios/turma_list.html", context)
@@ -262,6 +273,7 @@ class StaticSite:
             for turma in curso.turmas.all():
                 aulas = [a for a in aulas_curso if any(t.id == turma.id for t in a.turmas.all())]
                 ctx = self._ctx(
+                    prefix=prefix,
                     versao=versao,
                     curso=curso,
                     turma=turma,
@@ -300,14 +312,14 @@ class StaticSite:
         self._write(
             self._prefix_path(prefix, "professor/index.html"),
             "horarios/professor_list.html",
-            self._ctx(versao=versao, active="professores", professores=professores),
+            self._ctx(prefix=prefix, versao=versao, active="professores", professores=professores),
         )
         for prof in profs:
             aulas = [a for a in aulas_versao if a.professores.filter(id=prof.id).exists()]
             self._write(
                 self._prefix_path(prefix, f"professor/{prof.slug}/index.html"),
                 "horarios/professor_detail.html",
-                self._ctx(versao=versao, professor=prof, grid=build_grid(aulas), kind="professor", color=entity_color(prof.nome), active="professores"),
+                self._ctx(prefix=prefix, versao=versao, professor=prof, grid=build_grid(aulas), kind="professor", color=entity_color(prof.nome), active="professores"),
             )
 
     def render_salas(self, versao, prefix=""):
@@ -329,14 +341,14 @@ class StaticSite:
         self._write(
             self._prefix_path(prefix, "sala/index.html"),
             "horarios/sala_list.html",
-            self._ctx(versao=versao, active="salas", salas=salas),
+            self._ctx(prefix=prefix, versao=versao, active="salas", salas=salas),
         )
         for sala in Sala.objects.order_by("nome"):
             aulas = [a for a in aulas_versao if a.sala_id == sala.id]
             self._write(
                 self._prefix_path(prefix, f"sala/{sala.slug}/index.html"),
                 "horarios/sala_detail.html",
-                self._ctx(versao=versao, sala=sala, grid=build_grid(aulas), kind="sala", color=entity_color(sala.nome), active="salas"),
+                self._ctx(prefix=prefix, versao=versao, sala=sala, grid=build_grid(aulas), kind="sala", color=entity_color(sala.nome), active="salas"),
             )
 
     def render_cursos(self):

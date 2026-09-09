@@ -5,6 +5,20 @@
     <div class="home-hero-text">
       <h1>{{ site_title }}</h1>
       <p>Consulte os horários das turmas, professores e salas do Campus Barras.</p>
+      {% if versao_atual %}
+      <form class="home-version" id="homeVersionForm" action="" method="get">
+        <label class="home-version-label" for="homeVersion">Selecionar versão</label>
+        <div class="home-version-controls">
+          <select id="homeVersion" class="home-version-select" name="versao">
+            <option value="{{ base }}turma/" selected>Atual — {{ versao_atual.versao }}</option>
+            {% for v in history %}
+              <option value="{{ base }}versoes/{{ v.slug }}/turma/">{{ v.versao }} (histórica)</option>
+            {% endfor %}
+          </select>
+          <button class="button button-primary" type="submit">Ver horários</button>
+        </div>
+      </form>
+      {% endif %}
     </div>
   </section>
 

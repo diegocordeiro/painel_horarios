@@ -115,6 +115,48 @@ a:hover {
   border-color: var(--primary);
 }
 
+/* ===== Indicador da versão em exibição ===== */
+.version-banner {
+  background: var(--primary-soft);
+  border-bottom: 1px solid var(--border);
+}
+
+.version-banner-inner {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .55rem 0;
+  font-size: .9rem;
+  flex-wrap: wrap;
+}
+
+.version-banner .version-label {
+  color: var(--muted);
+}
+
+.version-banner .version-value {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.version-chip {
+  font-size: .72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  padding: .15rem .55rem;
+  border-radius: 999px;
+  border: 1px solid var(--primary);
+  background: var(--surface);
+  color: var(--primary);
+}
+
+.version-chip.atual {
+  color: #fff;
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
 .site-main {
   padding: 2rem 0 3rem;
   min-height: 70vh;
@@ -542,6 +584,42 @@ blockquote {
 
 .home-hero .button-primary:hover {
   background: #f0f4f8;
+}
+
+/* ===== Seletor de versão no hero da home ===== */
+.home-version {
+  margin-top: 1.2rem;
+}
+
+.home-version-label {
+  display: block;
+  margin-bottom: .5rem;
+  font-weight: 600;
+  opacity: .95;
+}
+
+.home-version-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .6rem;
+  justify-content: center;
+}
+
+.home-version-select {
+  flex: 1 1 240px;
+  max-width: 100%;
+  padding: .6rem 1rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, .4);
+  background: #fff;
+  color: #155f7a;
+  font-size: .95rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.home-version .button {
+  margin-top: 0;
 }
 
 .home-stats {

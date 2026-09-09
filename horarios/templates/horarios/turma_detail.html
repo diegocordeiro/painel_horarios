@@ -2,7 +2,7 @@
 {% block title %}{{ turma.nome_completo }} — {{ site_title }}{% endblock %}
 {% block content %}
   <nav class="breadcrumb">
-    <a href="{{ base }}turma/">Turmas</a> / <a href="{{ base }}curso/{{ curso.slug }}/">{{ curso.nome }}</a> / <span>{{ turma.rotulo|default:turma.nome_completo }}</span>
+    <a href="{{ base }}turma/">Turmas</a> / <a href="{{ root_base }}curso/{{ curso.slug }}/">{{ curso.nome }}</a> / <span>{{ turma.rotulo|default:turma.nome_completo }}</span>
   </nav>
 
   <section class="curso-detail-hero">
@@ -13,8 +13,6 @@
       <p class="muted">{{ curso.nome }}</p>
     </div>
   </section>
-
-  <p class="subtle">Versão: {{ versao.versao }}</p>
 
   {% include "horarios/_timetable.html" %}
 {% endblock %}

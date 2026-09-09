@@ -16,7 +16,10 @@ def _aulas_filter(versao, **filters):
 
 
 def home(request):
-    return render(request, "horarios/home.html")
+    versao = _versao()
+    history = list(Versao.objects.exclude(id=versao.id) if versao else Versao.objects.none())
+    history.sort(key=lambda v: v.inicio, reverse=True)
+    return render(request, "horarios/home.html", {"versao_atual": versao, "history": history})
 
 
 def intro(request):
@@ -52,7 +55,11 @@ def turma_detail(request, curso_slug, turma_slug):
 
 
 def professor_list(request):
-    return render(request, "horarios/professor_list.html", {"professores": Professor.objects.all()})
+    return render(
+        request,
+        "horarios/professor_list.html",
+        {"professores": Professor.objects.all(), "versao": _versao()},
+    )
 
 
 def professor_detail(request, slug):
@@ -67,7 +74,11 @@ def professor_detail(request, slug):
 
 
 def sala_list(request):
-    return render(request, "horarios/sala_list.html", {"salas": Sala.objects.all()})
+    return render(
+        request,
+        "horarios/sala_list.html",
+        {"salas": Sala.objects.all(), "versao": _versao()},
+    )
 
 
 def sala_detail(request, slug):

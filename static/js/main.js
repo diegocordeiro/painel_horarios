@@ -16,6 +16,22 @@
     });
   }
 
+  // Seletor de versão (página inicial) — navega para a versão escolhida.
+  var versionForm = document.getElementById('homeVersionForm');
+  var versionSel = document.getElementById('homeVersion');
+  if (versionSel) {
+    var goVersion = function () {
+      if (versionSel.value) window.location.href = versionSel.value;
+    };
+    versionSel.addEventListener('change', goVersion);
+    if (versionForm) {
+      versionForm.addEventListener('submit', function (ev) {
+        ev.preventDefault();
+        goVersion();
+      });
+    }
+  }
+
   // Modos de visualização da grade
   var table = document.getElementById('timetable');
   if (!table) return;

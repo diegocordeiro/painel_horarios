@@ -1,4 +1,6 @@
+import json
 import os
+import tempfile
 from pathlib import Path
 
 from django.test import TestCase
@@ -130,3 +132,57 @@ class SeedCursosTests(TestCase):
         self.assertEqual(adm.ppcs[0]["label"], "PPC Administração PROEJA 2023")
         # O seed não deve criar mais cursos além dos que vêm do CSV.
         self.assertEqual(Curso.objects.count(), 3)
+
+
+class ImportVersoesTests(TestCase):
+    """Valida o `import_versoes`: preserva todas as versões e marca a mais recente."""
+
+    def _make_fixture(self):
+        """Cria um manifest com duas versões (fora de ordem) em um dir temporário.
+
+        Retorna (manifest_path, base_dir). Usa o `horarios.csv` como grade de ambas.
+        """
+        csv_fonte = Path(__file__).resolve().parent.parent / "horarios.csv"
+        tmp_dir = Path(tempfile.mkdtemp(prefix="versoes_"))
+        (tmp_dir / "2026.1.v1.csv").write_bytes(csv_fonte.read_bytes())
+        (tmp_dir / "2026.2.v1.csv").write_bytes(csv_fonte.read_bytes())
+
+        manifest = {
+            "versions": [
+                # Listadas fora de ordem de propósito; o comando ordena por `inicio`.
+                {"versao": "2026.2.v1", "csv": "2026.2.v1.csv", "inicio": "2026-09-14"},
+                {"versao": "2026.1.v1", "csv": "2026.1.v1.csv", "inicio": "2026-02-16"},
+            ]
+        }
+        manifest_path = tmp_dir / "manifest.json"
+        manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+        return str(manifest_path), str(tmp_dir)
+
+    def test_import_versoes_preserves_multiple_versions(self):
+        manifest, base_dir = self._make_fixture()
+        call_command("import_versoes", manifest=manifest, base_dir=base_dir, verbosity=0)
+
+        self.assertEqual(Versao.objects.count(), 2)
+        self.assertEqual(
+            set(Versao.objects.values_list("versao", flat=True)),
+            {"2026.1.v1", "2026.2.v1"},
+        )
+        # Ambas as versões têm aulas importadas.
+        for v in Versao.objects.all():
+            self.assertGreater(v.aulas.count(), 0)
+
+    def test_import_versoes_marca_a_mais_recente_como_atual(self):
+        manifest, base_dir = self._make_fixture()
+        call_command("import_versoes", manifest=manifest, base_dir=base_dir, verbosity=0)
+
+        self.assertEqual(Versao.objects.filter(atual=True).count(), 1)
+        atual = Versao.objects.get(atual=True)
+        self.assertEqual(atual.versao, "2026.2.v1")
+
+    def test_import_versoes_e_idempotente(self):
+        manifest, base_dir = self._make_fixture()
+        call_command("import_versoes", manifest=manifest, base_dir=base_dir, verbosity=0)
+        call_command("import_versoes", manifest=manifest, base_dir=base_dir, verbosity=0)
+
+        self.assertEqual(Versao.objects.count(), 2)
+        self.assertEqual(Versao.objects.filter(atual=True).count(), 1)

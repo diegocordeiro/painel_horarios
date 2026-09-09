@@ -10,17 +10,27 @@ professores, salas, cursos, campus e histórico de versões).
 Fluxo completo, da grade gerada no FET até a publicação:
 
 ```
-FET (exporta .csv) → import_timetable → render_static_site → build/ → GitHub Pages
+FET (exporta .csv) → import_versoes → render_static_site → build/ → GitHub Pages
 ```
 
-1. **Importar o CSV do FET** — popula o banco com uma versão do quadro:
+1. **Registrar as grades versionadas** — cada versão do quadro vira um CSV em
+   `horarios/data/versoes/`, listado no `manifest.json`:
 
    ```bash
-   python manage.py import_timetable horarios.csv \
-     --versao 2026.2.v4 --inicio 2026-09-03 --atual
+   # Adicione o arquivo da nova versão em horarios/data/versoes/<versao>.csv
+   # e acrescente a entrada no manifest.json, ex.:
+   # { "versao": "2026.2.v1", "csv": "2026.2.v1.csv", "inicio": "2026-09-14" }
    ```
 
-2. **Gerar o site estático** — grava as páginas HTML na pasta `build/`:
+2. **Importar todas as versões do histórico** — o comando `import_versoes` lê o
+   `manifest.json`, reimporta cada versão em ordem cronológica e marca a mais
+   recente como atual (os arquivos antigos continuam como histórico):
+
+   ```bash
+   python manage.py import_versoes
+   ```
+
+3. **Gerar o site estático** — grava as páginas HTML na pasta `build/`:
 
    ```bash
    python manage.py render_static_site
@@ -31,8 +41,9 @@ FET (exporta .csv) → import_timetable → render_static_site → build/ → Gi
    informar direto com `--base-url <path-or-url>`. Assim, todos os links e assets
    (CSS/JS/imagens) em `build/` são gerados com o prefixo correto.
 
-3. **Publicar** — o conteúdo de `build/` é enviado ao GitHub Pages pelo workflow
-   (automaticamente a cada push na branch `main`).
+4. **Publicar** — o conteúdo de `build/` é enviado ao GitHub Pages pelo workflow
+   (automaticamente a cada push na branch `main`). Como o CI reimporta todo o
+   manifesto, as versões anteriores continuam disponíveis em `/versoes/<versao>/`.
 
 > A base URL (`/repo/` em *project pages* ou `/` em *user/org pages*) é calculada
 > dinamicamente a partir do nome do repositório (env `SITE_BASE_URL`), então funciona
@@ -90,7 +101,7 @@ barras_horarios/
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 python manage.py migrate
-python manage.py import_timetable horarios.csv --versao 2026.2.v4 --inicio 2026-09-03 --atual
+python manage.py import_versoes
 python manage.py runserver
 ```
 
@@ -100,20 +111,30 @@ Abra `http://127.0.0.1:8000/`.
 
 | Comando              | Descrição                               | Argumentos relevantes                                   |
 | -------------------- | --------------------------------------- | ------------------------------------------------------- |
-| `import_timetable`   | Importa o CSV do FET e popula o banco   | `csv_path`, `--versao`, `--inicio`, `--fim`, `--atual`  |
+| `import_timetable`   | Importa um CSV do FET e popula o banco  | `csv_path`, `--versao`, `--inicio`, `--fim`, `--atual`  |
+| `import_versoes`     | Reimporta todas as versões do `manifest.json` | `--manifest`, `--base-dir`                         |
 | `render_static_site` | Gera o site estático em `build/`        | `--output`, `--base-url`                                |
 
 ## Importar uma nova versão
 
-Basta rodar o passo 1 com `--versao` (e `--atual`) novo, seguido de `render_static_site`.
-As versões antigas são preservadas e ficam disponíveis sob
-`/versoes/<versao>/`.
+Para publicar um novo semestre/grade:
+
+1. Exporte a grade no **FET** e salve como `horarios/data/versoes/<versao>.csv`
+   (ex.: `2026.2.v1.csv`).
+2. Acrescente a entrada no `horarios/data/versoes/manifest.json`, na ordem desejada
+   (sequencialmente; cada item tem `versao`, `csv`, `inicio` e, opcionalmente, `fim`).
+3. Rode `python manage.py import_versoes` (reimporta todo o histórico e marca a mais
+   recente como atual) e, se for publicar localmente, `render_static_site`.
+
+Como todo o histórico fica versionado no repo, as versões antigas são preservadas
+entre execuções do GitHub Actions e continuam disponíveis sob `/versoes/<versao>/`.
 
 ## Publicação (GitHub Pages)
 
 O workflow `.github/workflows/deploy.yml` executa o build e o deploy a cada push na
-branch `main` (ou manualmente via *workflow_dispatch*). Ele migra o banco, importa o
-CSV e gera o site estático, e publica `build/` no GitHub Pages.
+branch `main` (ou manualmente via *workflow_dispatch*). Ele migra o banco, reimporta
+**todas** as versões do manifesto (`import_versoes`), gera o site estático e publica
+`build/` no GitHub Pages.
 
 ## Testes
 
@@ -123,12 +144,10 @@ python manage.py test
 
 ## Observações sobre o CSV
 
-- `*.csv` está no `.gitignore`, então o CSV exportado pelo FET **não é versionado**.
-  O nome do arquivo pode variar conforme a exportação.
-- O CSV usado pelo projeto é `horarios.csv`. A suíte de testes
-  (`horarios/tests.py`) e o workflow (`.github/workflows/deploy.yml`) já usam
-  esse nome, então os testes rodam sem erro de `FileNotFoundError`.
-- Como o arquivo está no `.gitignore`, **o CSV não é enviado para o GitHub**.
-  O workflow de deploy (`import_timetable`) precisa que o `horarios.csv`
-  exista no runner — disponibilize-o por secret/artifact ou remova-o do
-  `.gitignore` antes do deploy.
+- O `horarios.csv` da raiz é apenas o **fixture da suíte de testes**
+  (`horarios/tests.py`). O conteúdo versionado (histórico) fica em
+  `horarios/data/versoes/<versao>.csv`, listado no `manifest.json`.
+- As grades **são versionadas** no repositório (ficam em `horarios/data/versoes/`),
+  portanto o GitHub Actions reimporta todo o histórico a cada execução.
+- `.gitignore` ignora `db.sqlite3` e `build/`, mas **não** os CSVs — eles entram
+  normalmente no repositório.

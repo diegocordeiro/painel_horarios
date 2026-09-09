@@ -15,9 +15,8 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  # Versão e início da grade publicada. Ajuste ao trocar o semestre.
-  TIMETABLE_VERSION: "2026.2.v1"
-  TIMETABLE_START: "2026-09-14"
+  # As versões publicadas vêm do arquivo horarios/data/versoes/manifest.json
+  # (são reimportadas a cada execução, preservando todo o histórico).
 
 jobs:
   build:
@@ -47,12 +46,8 @@ jobs:
       - name: Migrar banco
         run: python manage.py migrate --noinput
 
-      - name: Importar horários do FET (CSV)
-        run: >
-          python manage.py import_timetable horarios.csv
-          --versao "$TIMETABLE_VERSION"
-          --inicio "$TIMETABLE_START"
-          --atual
+      - name: Importar todas as versões do histórico (manifest)
+        run: python manage.py import_versoes
 
       - name: Popular cursos (PPCs e coordenação)
         run: python manage.py seed_cursos

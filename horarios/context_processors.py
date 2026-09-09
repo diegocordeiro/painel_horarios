@@ -27,6 +27,7 @@ def site(request):
     base = settings.SITE_BASE_URL
     return {
         "base": base,
+        "root_base": base,
         "static_url": base + "static/",
         "site_title": "Quadro de Horários do IFPI - Campus Barras",
         "active": _active_for_path(request.path),

@@ -118,3 +118,15 @@ class ImportTimetableTests(TestCase):
         # O turno da grade é registrado no campo turno do curso.
         adm = Curso.objects.get(nome="TÉCNICO EM ADMINISTRAÇÃO PROEJA")
         self.assertEqual(adm.turno, "NOITE")
+
+
+class SeedCursosTests(TestCase):
+    def test_seed_cursos_popula_ppcs_e_tipo(self):
+        call_command("seed_cursos", verbosity=0)
+        adm = Curso.objects.get(nome="TÉCNICO EM ADMINISTRAÇÃO PROEJA")
+        self.assertEqual(adm.tipo, "Técnico (PROEJA)")
+        self.assertGreaterEqual(len(adm.ppcs), 1)
+        self.assertEqual(adm.ppcs[0]["file"], "ppc_administracao_proeja_2023.pdf")
+        self.assertEqual(adm.ppcs[0]["label"], "PPC Administração PROEJA 2023")
+        # O seed não deve criar mais cursos além dos que vêm do CSV.
+        self.assertEqual(Curso.objects.count(), 3)

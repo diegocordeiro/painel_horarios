@@ -1,0 +1,1 @@
+"""Dados fixos do campus (cursos, PPCs etc.), usados por commands/seed_cursos."""

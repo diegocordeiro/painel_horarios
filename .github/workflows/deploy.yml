@@ -54,6 +54,9 @@ jobs:
           --inicio "$TIMETABLE_START"
           --atual
 
+      - name: Popular cursos (PPCs e coordenação)
+        run: python manage.py seed_cursos
+
       - name: Gerar site estático
         run: python manage.py render_static_site
 

@@ -15,7 +15,7 @@
   <ul class="curso-grid" id="turmaGrid">
     {% for curso in cursos %}
       {% for turma in curso.turmas.all %}
-        <li class="curso-card" data-tipo="{{ curso.tipo }}"
+        <li class="curso-card"
             data-search-text="{{ curso.nome }} {{ turma.rotulo }} {{ turma.nome_completo }} {{ curso.turno }} {{ curso.tipo }}">
           <span class="curso-avatar">{{ curso.nome|slice:":1" }}</span>
           <h2 class="curso-nome">{{ curso.nome }}</h2>

@@ -856,7 +856,7 @@ blockquote {
   .curso-detail-grid {
     grid-template-columns: 1fr;
   }
-
+}
 
 /* Cores por tipo (aplicadas também aos .curso-card com data-tipo, ex.: /turma/) */
 .curso-card[data-tipo="Técnico (PROEJA)"] { --tipo: #ea580c; }
@@ -918,5 +918,3 @@ blockquote {
   .turma-card[data-tipo="Tecnologia"] {
     --tipo: #0891b2;
   }
-
-}

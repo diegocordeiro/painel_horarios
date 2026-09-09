@@ -26,12 +26,18 @@ FET (exporta .csv) → import_timetable → render_static_site → build/ → Gi
    python manage.py render_static_site
    ```
 
+   Em terminal interativo o comando pergunta o path/URL base do GitHub Pages
+   (ex.: `https://diegocordeiro.github.io/painel_horarios/`). Você também pode
+   informar direto com `--base-url <path-or-url>`. Assim, todos os links e assets
+   (CSS/JS/imagens) em `build/` são gerados com o prefixo correto.
+
 3. **Publicar** — o conteúdo de `build/` é enviado ao GitHub Pages pelo workflow
    (automaticamente a cada push na branch `main`).
 
 > A base URL (`/repo/` em *project pages* ou `/` em *user/org pages*) é calculada
-> dinamicamente a partir do nome do repositório, então funciona em qualquer
-> conta/organização, sem hardcode.
+> dinamicamente a partir do nome do repositório (env `SITE_BASE_URL`), então funciona
+> em qualquer conta/organização, sem hardcode. Localmente você pode apontar o subpath
+> manualmente com `--base-url` ou respondendo ao prompt do `render_static_site`.
 
 ## Recursos
 
@@ -96,7 +102,7 @@ Abra `http://127.0.0.1:8000/`.
 | Comando              | Descrição                               | Argumentos relevantes                                   |
 | -------------------- | --------------------------------------- | ------------------------------------------------------- |
 | `import_timetable`   | Importa o CSV do FET e popula o banco   | `csv_path`, `--versao`, `--inicio`, `--fim`, `--atual`  |
-| `render_static_site` | Gera o site estático em `build/`        | `--output`                                              |
+| `render_static_site` | Gera o site estático em `build/`        | `--output`, `--base-url`                                |
 
 ## Importar uma nova versão
 

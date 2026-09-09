@@ -12,6 +12,8 @@ from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils.text import slugify
 
+from urllib.parse import urlparse
+
 from .fet import DAY_ORDER, normalize_day
 from .models import Aula, Curso, Professor, Sala, Turma, Versao
 
@@ -146,12 +148,32 @@ def build_grid(aulas):
     }
 
 
+def normalize_base_url(raw) -> str:
+    """Normaliza a base URL usada nos links/assets.
+
+    Aceita tanto um path quanto uma URL absoluta. Em URLs absolutas extrai apenas
+    o path (ex.: ``https://user.github.io/repo/`` -> ``/repo/``), garantindo sempre
+    ``/`` no início e no final.
+    """
+    raw = (raw or "").strip()
+    if not raw:
+        raw = "/"
+    # Se for URL absoluta, usa apenas o path (ex.: https://u.github.io/repo/ -> /repo/).
+    if "://" in raw:
+        raw = urlparse(raw).path or "/"
+    if not raw.startswith("/"):
+        raw = "/" + raw
+    if not raw.endswith("/"):
+        raw += "/"
+    return raw
+
+
 class StaticSite:
     """Ponto de entrada para gerar todas as páginas estáticas."""
 
     def __init__(self, build_root: Path, base_url: str):
         self.build_root = Path(build_root)
-        self.base = base_url if base_url.endswith("/") else base_url + "/"
+        self.base = normalize_base_url(base_url)
         self.static_url = self.base + "static/"
 
     def _ctx(self, **extra):

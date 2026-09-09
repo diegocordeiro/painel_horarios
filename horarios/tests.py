@@ -13,6 +13,7 @@ from .fet import (
     split_course_and_turma,
 )
 from .slug import url_slug
+from .static_site import normalize_base_url
 from .models import Aula, Curso, Professor, Sala, Turma, Versao
 
 
@@ -69,6 +70,27 @@ class FetParsingTests(TestCase):
             url_slug("Tecnologia em Sistemas para Internet"),
             "tecnologia_em_sistemas_para_internet",
         )
+
+
+class NormalizeBaseUrlTests(TestCase):
+    def test_absolute_url_extracts_path(self):
+        self.assertEqual(
+            normalize_base_url("https://diegocordeiro.github.io/painel_horarios/build/"),
+            "/painel_horarios/build/",
+        )
+        self.assertEqual(
+            normalize_base_url("https://diegocordeiro.github.io/painel_horarios"),
+            "/painel_horarios/",
+        )
+        self.assertEqual(normalize_base_url("https://user.github.io/"), "/")
+
+    def test_path_is_normalized(self):
+        self.assertEqual(normalize_base_url("/painel_horarios/"), "/painel_horarios/")
+        self.assertEqual(normalize_base_url("painel_horarios"), "/painel_horarios/")
+
+    def test_empty_defaults_to_root(self):
+        self.assertEqual(normalize_base_url(""), "/")
+        self.assertEqual(normalize_base_url(None), "/")
 
 
 class ImportTimetableTests(TestCase):

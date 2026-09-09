@@ -197,7 +197,7 @@ class StaticSite:
 
     def render_turmas(self, versao, prefix=""):
         context = self._ctx(versao=versao)
-        cursos = list(Curso.objects.order_by("posicao", "nome"))
+        cursos = list(Curso.objects.order_by("posicao", "nome").prefetch_related("turmas"))
         context["cursos"] = cursos
         self._write(self._prefix_path(prefix, "turma/index.html"), "horarios/turma_list.html", context)
         aulas_versao = self._aulas_versao(versao.id)

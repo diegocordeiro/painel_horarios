@@ -3,18 +3,97 @@
 {% block content %}
   <h1>Turmas por curso</h1>
   <p{% if versao %}>Versão: <strong>{{ versao.versao }}</strong>{% endif %}</p>
-  {% for curso in cursos %}
-    <h2 class="curso-title"><a href="{{ base }}curso/{{ curso.slug }}/">{{ curso.nome }}</a></h2>
-    <ul class="card-grid">
-      {% for turma in curso.turmas.all %}
-        <li class="card">
-          <a href="{{ base }}turma/{{ curso.slug }}/{{ turma.slug }}/">{{ turma.rotulo|default:turma.nome_completo }} - {{ curso.turno|default:"Turno não especificado" }}</a>
-        </li>
-      {% empty %}
-        <li class="card muted">Nenhuma turma.</li>
-      {% endfor %}
-    </ul>
-  {% empty %}
-    <p>Nenhum curso cadastrado. Rode <code>import_timetable</code> e <code>seed_content</code>.</p>
-  {% endfor %}
+
+  <div class="turma-tools">
+    <input type="search" id="turmaSearch" class="turma-search"
+           placeholder="Buscar por curso, turma ou turno…" autocomplete="off">
+    <span class="turma-count" id="turmaCount"></span>
+  </div>
+
+  <div id="turmaList">
+    {% for curso in cursos %}
+      <section class="curso-block"
+               data-searchable="{{ curso.nome }} {{ curso.tipo }} {{ curso.turno }} {{ curso.modalidade }}">
+        <h2 class="curso-title">
+          <a href="{{ base }}curso/{{ curso.slug }}/">{{ curso.nome }}</a>
+          <span class="curso-count">{{ curso.turmas.all|length }}</span>
+        </h2>
+
+        <ul class="card-grid">
+          {% for turma in curso.turmas.all %}
+            <li class="card turma-card"
+                data-search-text="{{ curso.nome }} {{ turma.rotulo }} {{ turma.nome_completo }} {{ curso.turno }} {{ curso.tipo }}">
+              <a href="{{ base }}turma/{{ curso.slug }}/{{ turma.slug }}/" class="turma-link">
+                <span class="turma-rotulo">{{ turma.rotulo|default:turma.nome_completo }}</span>
+                <span class="turma-sub">{{ curso.nome }}</span>
+                <span class="turma-turno">{{ curso.turno|default:"Turno não especificado" }}</span>
+              </a>
+            </li>
+          {% empty %}
+            <li class="card muted">Nenhuma turma.</li>
+          {% endfor %}
+        </ul>
+      </section>
+    {% empty %}
+      <p>Nenhum curso cadastrado. Rode <code>import_timetable</code> e <code>seed_content</code>.</p>
+    {% endfor %}
+  </div>
+
+  <div class="turma-empty hidden" id="turmaEmpty">Nenhuma turma encontrada. Tente outro termo.</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  (function () {
+    var input = document.getElementById('turmaSearch');
+    var countEl = document.getElementById('turmaCount');
+    var emptyEl = document.getElementById('turmaEmpty');
+    var blocks = Array.prototype.slice.call(document.querySelectorAll('.curso-block'));
+    if (!input || !blocks.length) return;
+
+    function norm(s) {
+      return (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+    }
+
+    function update() {
+      var term = norm(input.value);
+      var totalTurmas = 0;
+      var shownCursos = 0;
+      var shownTurmas = 0;
+
+      blocks.forEach(function (sec) {
+        var cards = Array.prototype.slice.call(sec.querySelectorAll('.turma-card'));
+        totalTurmas += cards.length;
+
+        var secText = norm(sec.getAttribute('data-searchable'));
+        var secMatch = !!term && secText.indexOf(term) !== -1;
+        var visible = 0;
+
+        cards.forEach(function (card) {
+          var cardText = norm(card.getAttribute('data-search-text'));
+          var match = !term || secMatch || cardText.indexOf(term) !== -1;
+          card.style.display = match ? '' : 'none';
+          if (match) visible++;
+        });
+
+        var showSec = !term || secMatch || visible > 0;
+        sec.style.display = showSec ? '' : 'none';
+        if (showSec && cards.length) shownCursos++;
+        shownTurmas += visible;
+      });
+
+      if (countEl) {
+        countEl.textContent = !term
+          ? totalTurmas + ' turmas em ' + blocks.length + ' cursos'
+          : shownTurmas + ' turmas em ' + shownCursos + ' cursos';
+      }
+      if (emptyEl) {
+        emptyEl.classList.toggle('hidden', !term || shownTurmas > 0);
+      }
+    }
+
+    input.addEventListener('input', update);
+    update();
+  })();
+</script>
 {% endblock %}

@@ -35,7 +35,8 @@ def versoes(request):
 
 def turma_list(request):
     versao = _versao()
-    return render(request, "horarios/turma_list.html", {"cursos": Curso.objects.all(), "versao": versao})
+    cursos = Curso.objects.order_by("posicao", "nome").prefetch_related("turmas")
+    return render(request, "horarios/turma_list.html", {"cursos": cursos, "versao": versao})
 
 
 def turma_detail(request, curso_slug, turma_slug):

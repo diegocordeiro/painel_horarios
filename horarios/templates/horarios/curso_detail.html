@@ -47,19 +47,4 @@
       <p class="muted">Nenhum PPC anexado.</p>
     {% endif %}
   </section>
-  <br/>
-  <section class="panel">
-    <h2>Turmas</h2>
-    <ul class="card-grid">
-      {% for turma in curso.turmas.all %}
-        <li class="card">
-          <a class="turma-link" href="{{ base }}turma/{{ curso.slug }}/{{ turma.slug }}/">
-            <span class="turma-rotulo">{{ turma.rotulo|default:turma.nome_completo }}</span>
-          </a>
-        </li>
-      {% empty %}
-        <li class="card muted">Nenhuma turma.</li>
-      {% endfor %}
-    </ul>
-  </section>
 {% endblock %}

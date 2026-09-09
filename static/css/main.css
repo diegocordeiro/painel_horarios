@@ -463,10 +463,13 @@ blockquote {
   min-width: 110px;
 }
 
+.timetable .day-cell.has-class {
+  background:
+    linear-gradient(var(--class-color), var(--class-color)) left / 6px 100% no-repeat,
+    color-mix(in srgb, var(--class-color) 42%, var(--surface));
+}
+
 .class-card {
-  background: color-mix(in srgb, var(--class-color) 42%, var(--surface));
-  border-left: 6px solid var(--class-color);
-  height: 100%;
   padding: .4rem .5rem;
   font-size: .8rem;
   display: flex;

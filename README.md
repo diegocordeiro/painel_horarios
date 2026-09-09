@@ -10,7 +10,7 @@ professores, salas, cursos, campus e histórico de versões).
 Fluxo completo, da grade gerada no FET até a publicação:
 
 ```
-FET (exporta .csv) → import_timetable → seed_content → render_static_site → build/ → GitHub Pages
+FET (exporta .csv) → import_timetable → render_static_site → build/ → GitHub Pages
 ```
 
 1. **Importar o CSV do FET** — popula o banco com uma versão do quadro:
@@ -20,19 +20,13 @@ FET (exporta .csv) → import_timetable → seed_content → render_static_site 
      --versao 2026.2.v4 --inicio 2026-09-03 --atual
    ```
 
-2. **Semear os metadados dos cursos** — coordenação, PPCs, carga horária, etc.:
-
-   ```bash
-   python manage.py seed_content
-   ```
-
-3. **Gerar o site estático** — grava as páginas HTML na pasta `build/`:
+2. **Gerar o site estático** — grava as páginas HTML na pasta `build/`:
 
    ```bash
    python manage.py render_static_site
    ```
 
-4. **Publicar** — o conteúdo de `build/` é enviado ao GitHub Pages pelo workflow
+3. **Publicar** — o conteúdo de `build/` é enviado ao GitHub Pages pelo workflow
    (automaticamente a cada push na branch `main`).
 
 > A base URL (`/repo/` em *project pages* ou `/` em *user/org pages*) é calculada
@@ -58,7 +52,7 @@ FET (exporta .csv) → import_timetable → seed_content → render_static_site 
 ```
 barras_horarios/
 ├── horarios/            # Aplicação Django (models, importador FET, gerador estático, views, templates)
-│   ├── management/commands/   # import_timetable, seed_content, render_static_site
+│   ├── management/commands/   # import_timetable, render_static_site
 │   ├── fet.py                 # Parsing/normalização do CSV do FET
 │   ├── static_site.py         # Geração do site estático (build/)
 │   └── templates/horarios/    # Templates das páginas e da grade
@@ -91,7 +85,6 @@ python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 python manage.py migrate
 python manage.py import_timetable barras_timetable.csv --versao 2026.2.v4 --inicio 2026-09-03 --atual
-python manage.py seed_content
 python manage.py runserver
 ```
 
@@ -102,20 +95,18 @@ Abra `http://127.0.0.1:8000/`.
 | Comando              | Descrição                               | Argumentos relevantes                                   |
 | -------------------- | --------------------------------------- | ------------------------------------------------------- |
 | `import_timetable`   | Importa o CSV do FET e popula o banco   | `csv_path`, `--versao`, `--inicio`, `--fim`, `--atual`  |
-| `seed_content`       | Popula/atualiza os metadados dos cursos | —                                                       |
 | `render_static_site` | Gera o site estático em `build/`        | `--output`                                              |
 
 ## Importar uma nova versão
 
-Basta rodar o passo 1 com `--versao` (e `--atual`) novo, seguido de `seed_content`
-e `render_static_site`. As versões antigas são preservadas e ficam disponíveis sob
-`/versoes/<versao>/`.
+Basta rodar o passo 1 com `--versao` (e `--atual`) novo, seguido de `render_static_site`.
+As versões antigas são preservadas e ficam disponíveis sob `/versoes/<versao>/`.
 
 ## Publicação (GitHub Pages)
 
 O workflow `.github/workflows/deploy.yml` executa o build e o deploy a cada push na
 branch `main` (ou manualmente via *workflow_dispatch*). Ele migra o banco, importa o
-CSV, semeia os metadados, gera o site estático e publica `build/` no GitHub Pages.
+CSV, gera o site estático e publica `build/` no GitHub Pages.
 
 ## Testes
 

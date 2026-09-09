@@ -260,23 +260,6 @@ class StaticSite:
             self._ctx(cursos=cursos),
         )
 
-    def render_campus(self):
-        self._write(
-            "campus/administracao/index.html",
-            "horarios/campus/administracao.html",
-            self._ctx(),
-        )
-        self._write(
-            "campus/calendario-academico/index.html",
-            "horarios/campus/calendario_academico.html",
-            self._ctx(),
-        )
-        self._write(
-            "campus/setor-de-saude/index.html",
-            "horarios/campus/setor_de_saude.html",
-            self._ctx(),
-        )
-
     def copy_assets(self):
         static_src = Path(settings.BASE_DIR) / "static"
         if static_src.exists():

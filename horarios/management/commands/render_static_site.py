@@ -43,7 +43,6 @@ class Command(BaseCommand):
         site.render_professores(atual, prefix="")
         site.render_salas(atual, prefix="")
         site.render_cursos()
-        site.render_campus()
 
         # Versões antigas ficam sob /versoes/<slug>/...
         for versao in history:

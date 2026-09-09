@@ -16,8 +16,8 @@ concurrency:
 
 env:
   # Versão e início da grade publicada. Ajuste ao trocar o semestre.
-  TIMETABLE_VERSION: "2026.2.v4"
-  TIMETABLE_START: "2026-09-03"
+  TIMETABLE_VERSION: "2026.2.v1"
+  TIMETABLE_START: "2026-09-14"
 
 jobs:
   build:
@@ -53,9 +53,6 @@ jobs:
           --versao "$TIMETABLE_VERSION"
           --inicio "$TIMETABLE_START"
           --atual
-
-      - name: Semear metadados dos cursos
-        run: python manage.py seed_content
 
       - name: Gerar site estático
         run: python manage.py render_static_site

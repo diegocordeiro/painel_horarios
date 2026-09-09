@@ -7,6 +7,9 @@ A chave é `nome` (igual ao que o `import_timetable` deriva do CSV). Cada item
 de `ppcs` tem `file` (arquivo dentro de media/attachments/) e `label` (texto do
 link). Preencha coordenador/email/lattes/carga_horaria/duracao/modalidade com os
 dados reais do curso.
+
+Edite AQUI para alterar coordenação/PPCs; o Django admin é somente leitura
+(dados versionados; o banco é recriado a cada deploy).
 """
 
 CURSOS = [

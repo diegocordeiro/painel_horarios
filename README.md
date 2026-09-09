@@ -89,6 +89,12 @@ barras_horarios/
 - `Aula` — bloco de aula (com slots contíguos unidos), ligada a `Versao` e às
   entidades por relacionamentos M2M.
 
+> O `db.sqlite3` é uma **camada de staging** transiente: é recriado a cada deploy a
+> partir das fontes da verdade (CSVs em `horarios/data/versoes/` + `manifest.json` e
+> `horarios/data/cursos.py`). O Django admin é **somente leitura** — usá-lo para editar
+> não persiste e será sobrescrito na próxima importação. Para alterar conteúdo, edite a
+> fonte da verdade e rode `import_versoes` + `seed_cursos`.
+
 ## Pré-requisitos
 
 - **Python 3.13+** (versão usada no CI);

@@ -96,7 +96,7 @@ class NormalizeBaseUrlTests(TestCase):
 class ImportTimetableTests(TestCase):
     @classmethod
     def setUpTestData(cls):
-        csv_path = Path(__file__).resolve().parent.parent / "barras_timetable.csv"
+        csv_path = Path(__file__).resolve().parent.parent / "horarios.csv"
         cls.csv_path = str(csv_path)
 
     def test_import_from_csv(self):

@@ -16,7 +16,7 @@ FET (exporta .csv) → import_timetable → render_static_site → build/ → Gi
 1. **Importar o CSV do FET** — popula o banco com uma versão do quadro:
 
    ```bash
-   python manage.py import_timetable barras_timetable.csv \
+   python manage.py import_timetable horarios.csv \
      --versao 2026.2.v4 --inicio 2026-09-03 --atual
    ```
 
@@ -90,7 +90,7 @@ barras_horarios/
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 python manage.py migrate
-python manage.py import_timetable barras_timetable.csv --versao 2026.2.v4 --inicio 2026-09-03 --atual
+python manage.py import_timetable horarios.csv --versao 2026.2.v4 --inicio 2026-09-03 --atual
 python manage.py runserver
 ```
 
@@ -125,10 +125,10 @@ python manage.py test
 
 - `*.csv` está no `.gitignore`, então o CSV exportado pelo FET **não é versionado**.
   O nome do arquivo pode variar conforme a exportação.
-- O CSV usado pelo projeto é `barras_timetable.csv`. A suíte de testes
+- O CSV usado pelo projeto é `horarios.csv`. A suíte de testes
   (`horarios/tests.py`) e o workflow (`.github/workflows/deploy.yml`) já usam
   esse nome, então os testes rodam sem erro de `FileNotFoundError`.
 - Como o arquivo está no `.gitignore`, **o CSV não é enviado para o GitHub**.
-  O workflow de deploy (`import_timetable`) precisa que o `barras_timetable.csv`
+  O workflow de deploy (`import_timetable`) precisa que o `horarios.csv`
   exista no runner — disponibilize-o por secret/artifact ou remova-o do
   `.gitignore` antes do deploy.

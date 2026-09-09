@@ -1,0 +1,10 @@
+{% extends "horarios/base.html" %}
+{% block title %}{{ turma.nome_completo }} — {{ site_title }}{% endblock %}
+{% block content %}
+  <nav class="breadcrumb">
+    <a href="{{ base }}turma/">Turmas</a> / <span>{{ turma.nome_completo }}</span>
+  </nav>
+  <h1>{{ turma.nome_completo }}</h1>
+  <p class="subtle">Versão: {{ versao.versao }}</p>
+  {% include "horarios/_timetable.html" %}
+{% endblock %}

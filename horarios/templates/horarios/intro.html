@@ -1,0 +1,32 @@
+{% extends "horarios/base.html" %}
+{% block title %}Quadro de Horários — {{ site_title }}{% endblock %}
+{% block content %}
+  <h1>Quadro de Horários</h1>
+  <p>
+    Seja bem-vindo ao sistema web para o quadro de horários do Instituto Federal do Piauí
+    — Campus Barras.
+  </p>
+
+  <h2>Versão atual: {{ versao_atual.versao }}</h2>
+  <p>Início: {{ versao_atual.inicio|date:"d/m/Y" }}{% if versao_atual.fim %} • Fim: {{ versao_atual.fim|date:"d/m/Y" }}{% endif %}</p>
+
+  <h2>Histórico de versões</h2>
+  <table class="versions-table">
+    <thead>
+      <tr><th>Versão</th><th>Início</th><th>Fim</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      {% for v in history %}
+        <tr>
+          <td><a href="{{ base }}versoes/{{ v.slug }}/turma/">{{ v.versao }}</a></td>
+          <td>{{ v.inicio|date:"d/m/Y" }}</td>
+          <td>{% if v.fim %}{{ v.fim|date:"d/m/Y" }}{% else %}—{% endif %}</td>
+          <td>{% if v == versao_atual %}Atual{% else %}Histórica{% endif %}</td>
+        </tr>
+      {% endfor %}
+      {% if not history %}
+        <tr><td colspan="4">Nenhuma versão anterior disponível.</td></tr>
+      {% endif %}
+    </tbody>
+  </table>
+{% endblock %}

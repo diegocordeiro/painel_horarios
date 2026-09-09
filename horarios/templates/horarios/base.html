@@ -1,0 +1,44 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ site_title }}{% endblock %}</title>
+  <link rel="icon" href="{{ static_url }}img/favicon.gif">
+  <link rel="stylesheet" href="{{ static_url }}css/main.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="{{ base }}">
+        <img src="{{ static_url }}img/logo.svg" alt="IFPI - Campus Barras">
+      </a>
+      <nav class="nav">
+        <a href="{{ base }}">Início</a>
+        <a href="{{ base }}introducao/">Quadro de Horários</a>
+        <a href="{{ base }}turma/">Turmas</a>
+        <a href="{{ base }}professor/">Professores</a>
+        <a href="{{ base }}sala/">Salas</a>
+        <a href="{{ base }}cursos/">Cursos</a>
+        <a href="{{ base }}versoes/">Versões</a>
+        <button id="themeToggle" class="theme-btn" type="button">Tema</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="site-main container">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>{{ site_title }}</p>
+      <p>Publicado com Django (gerador estático) para GitHub Pages.</p>
+    </div>
+  </footer>
+
+  <script src="{{ static_url }}js/main.js"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

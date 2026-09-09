@@ -1,0 +1,14 @@
+{% extends "horarios/base.html" %}
+{% block title %}Cursos — {{ site_title }}{% endblock %}
+{% block content %}
+  <h1>Cursos do campus</h1>
+  <ul class="card-grid">
+    {% for curso in cursos %}
+      <li class="card">
+        <a href="{{ base }}curso/{{ curso.slug }}/">{{ curso.nome }}</a>
+      </li>
+    {% empty %}
+      <li class="card muted">Nenhum curso cadastrado.</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

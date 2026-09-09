@@ -1,0 +1,74 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+env:
+  # Versão e início da grade publicada. Ajuste ao trocar o semestre.
+  TIMETABLE_VERSION: "2026.2.v4"
+  TIMETABLE_START: "2026-09-03"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Instalar dependências
+        run: pip install -r requirements.txt
+
+      # Base URL dinâmica: project pages -> /repo/, user/org pages -> /
+      - name: Configurar base URL do site
+        run: |
+          repo="${GITHUB_REPOSITORY#*/}"
+          if [[ "$repo" == *.github.io ]]; then
+            base="/"
+          else
+            base="/${repo}/"
+          fi
+          echo "SITE_BASE_URL=$base" >> "$GITHUB_ENV"
+          echo "BASE=$base" >> "$GITHUB_ENV"
+
+      - name: Migrar banco
+        run: python manage.py migrate --noinput
+
+      - name: Importar horários do FET (CSV)
+        run: >
+          python manage.py import_timetable HorarioOficial_timetable.csv
+          --versao "$TIMETABLE_VERSION"
+          --inicio "$TIMETABLE_START"
+          --atual
+
+      - name: Semear metadados dos cursos
+        run: python manage.py seed_content
+
+      - name: Gerar site estático
+        run: python manage.py render_static_site
+
+      - name: Configurar Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: Publicar artefato
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build
+
+      - name: Deploy
+        uses: actions/deploy-pages@v4

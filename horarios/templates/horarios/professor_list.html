@@ -1,0 +1,14 @@
+{% extends "horarios/base.html" %}
+{% block title %}Professores — {{ site_title }}{% endblock %}
+{% block content %}
+  <h1>Professores</h1>
+  <ul class="card-grid">
+    {% for prof in professores %}
+      <li class="card">
+        <a href="{{ base }}professor/{{ prof.slug }}/">{{ prof.nome }}</a>
+      </li>
+    {% empty %}
+      <li class="card muted">Nenhum professor cadastrado.</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

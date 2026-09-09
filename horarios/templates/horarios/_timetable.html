@@ -1,0 +1,69 @@
+{% load filters %}
+<div class="timetable-toolbar">
+  <span>Visualização:</span>
+  <button class="mode-btn active" data-mode="completed" type="button">Completo</button>
+  <button class="mode-btn" data-mode="condensed" type="button">Condensado</button>
+  <button class="mode-btn" data-mode="superCondensed" type="button">Super condensado</button>
+</div>
+
+<table class="timetable"
+       id="timetable"
+       data-first="{{ grid.first_row }}"
+       data-last="{{ grid.last_row }}"
+       data-total="{{ grid.total_rows }}"
+       data-active-days="{% for d in grid.active_days %}{{ d }}{% if not forloop.last %}|{% endif %}{% endfor %}">
+  <thead>
+    <tr>
+      <th class="time-col">Horário</th>
+      {% for day in grid.days %}
+        <th class="day-head {% if day in grid.active_days %}day-active{% endif %}" data-day="{{ day }}">
+          {{ grid.day_labels|get_item:day }}
+        </th>
+      {% endfor %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in grid.rows %}
+      <tr class="time-row {% if row.has_class %}row-active{% endif %}" data-row="{{ forloop.counter0 }}">
+        <th class="time-col">{{ row.time }}</th>
+        {% for day in grid.days %}
+          {% with cell=row.cells|get_item:day %}
+          {% if cell.type != 'covered' %}
+          <td class="day-cell{% if cell.type == 'class' %} has-class{% endif %}{% if day in grid.active_days %} day-active{% endif %}"
+              data-day="{{ day }}"{% if cell.type == 'class' %} rowspan="{{ cell.rowspan }}" style="--class-color: {{ cell.color }}"{% endif %}>
+            {% if cell.type == 'class' %}
+              <div class="class-card">
+                <div class="class-subject">{{ cell.subject }}</div>
+                <div class="class-time">{{ cell.time }}</div>
+                {% if cell.professores %}
+                  <div class="class-meta class-teachers">
+                    {% for p in cell.professores %}
+                      <a href="{{ base }}professor/{{ p.slug }}/">{{ p.nome }}</a>{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                  </div>
+                {% endif %}
+                {% if cell.sala %}
+                  <div class="class-meta class-room">
+                    <a href="{{ base }}sala/{{ cell.sala.slug }}/">{{ cell.sala.nome }}</a>
+                  </div>
+                {% endif %}
+                {% if cell.turmas %}
+                  <div class="class-meta class-turmas">
+                    {% for t in cell.turmas %}
+                      <a href="{{ base }}turma/{{ t.curso_slug }}/{{ t.slug }}/">{{ t.nome }}</a>{% if not forloop.last %}; {% endif %}
+                    {% endfor %}
+                  </div>
+                {% endif %}
+                {% if cell.tag %}
+                  <div class="class-tag">{{ cell.tag }}</div>
+                {% endif %}
+              </div>
+            {% endif %}
+          </td>
+          {% endif %}
+          {% endwith %}
+        {% endfor %}
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>

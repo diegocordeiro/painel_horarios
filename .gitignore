@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.py[cod]
+db.sqlite3
+staticfiles/
+build/
+# Editor
+.DS_Store
+*.csv

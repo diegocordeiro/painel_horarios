@@ -1,0 +1,27 @@
+{% extends "horarios/base.html" %}
+{% block title %}Versões — {{ site_title }}{% endblock %}
+{% block content %}
+  <h1>Versões do quadro de horários</h1>
+  <p>Confira o histórico de horários publicados.</p>
+  <table class="versions-table">
+    <thead>
+      <tr><th>Versão</th><th>Início</th><th>Fim</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a href="{{ base }}turma/">{{ versao_atual.versao }}</a></td>
+        <td>{{ versao_atual.inicio|date:"d/m/Y" }}</td>
+        <td>{% if versao_atual.fim %}{{ versao_atual.fim|date:"d/m/Y" }}{% else %}—{% endif %}</td>
+        <td>Atual</td>
+      </tr>
+      {% for v in history %}
+        <tr>
+          <td><a href="{{ base }}versoes/{{ v.slug }}/turma/">{{ v.versao }}</a></td>
+          <td>{{ v.inicio|date:"d/m/Y" }}</td>
+          <td>{% if v.fim %}{{ v.fim|date:"d/m/Y" }}{% else %}—{% endif %}</td>
+          <td>Histórica</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

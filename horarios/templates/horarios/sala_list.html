@@ -1,0 +1,15 @@
+{% extends "horarios/base.html" %}
+{% block title %}Salas — {{ site_title }}{% endblock %}
+{% block content %}
+  <h1>Salas e laboratórios</h1>
+  <ul class="card-grid">
+    {% for sala in salas %}
+      <li class="card">
+        <a href="{{ base }}sala/{{ sala.slug }}/">{{ sala.nome }}</a>
+        {% if sala.predio %}<span class="muted"> — {{ sala.predio }}</span>{% endif %}
+      </li>
+    {% empty %}
+      <li class="card muted">Nenhuma sala cadastrada.</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends "horarios/base.html" %}
+{% block title %}{{ curso.nome }} — {{ site_title }}{% endblock %}
+{% block content %}
+  <nav class="breadcrumb">
+    <a href="{{ base }}cursos/">Cursos</a> / <span>{{ curso.nome }}</span>
+  </nav>
+  <h1>{{ curso.nome }}</h1>
+
+  <section>
+    <h2>Coordenação</h2>
+    <ul>
+      <li>Coordenador(a): <strong>{{ curso.coordenador }}</strong></li>
+      {% if curso.email %}<li>E-mail: <a href="mailto:{{ curso.email }}">{{ curso.email }}</a></li>{% endif %}
+      {% if curso.lattes %}<li>Lattes: <a href="{{ curso.lattes }}">{{ curso.lattes }}</a></li>{% endif %}
+    </ul>
+  </section>
+
+  <section>
+    <h2>Informações do curso</h2>
+    <ul>
+      <li>Modalidade: {{ curso.modalidade|default:"—" }}</li>
+      <li>Turno: {{ curso.turno|default:"—" }}</li>
+      <li>Carga horária: {{ curso.carga_horaria|default:"—" }}</li>
+      <li>Duração: {{ curso.duracao|default:"—" }}</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>PPCs</h2>
+    {% if curso.ppcs %}
+      <ul>
+        {% for ppc in curso.ppcs %}
+          <li><a href="{{ base }}media/attachments/{{ ppc.file }}" target="_blank" rel="noopener noreferrer">{{ ppc.label }}</a></li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="muted">Nenhum PPC anexado.</p>
+    {% endif %}
+  </section>
+
+  <section>
+    <h2>Turmas</h2>
+    <ul class="card-grid">
+      {% for turma in curso.turmas.all %}
+        <li class="card">
+          <a href="{{ base }}turma/{{ curso.slug }}/{{ turma.slug }}/">{{ turma.rotulo|default:turma.nome_completo }}</a>
+        </li>
+      {% empty %}
+        <li class="card muted">Nenhuma turma.</li>
+      {% endfor %}
+    </ul>
+  </section>
+{% endblock %}

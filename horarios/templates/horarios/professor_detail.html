@@ -1,0 +1,10 @@
+{% extends "horarios/base.html" %}
+{% block title %}{{ professor.nome }} — {{ site_title }}{% endblock %}
+{% block content %}
+  <nav class="breadcrumb">
+    <a href="{{ base }}professor/">Professores</a> / <span>{{ professor.nome }}</span>
+  </nav>
+  <h1>{{ professor.nome }}</h1>
+  <p class="subtle">Versão: {{ versao.versao }}</p>
+  {% include "horarios/_timetable.html" %}
+{% endblock %}

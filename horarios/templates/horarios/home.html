@@ -1,0 +1,26 @@
+{% extends "horarios/base.html" %}
+{% block title %}{{ site_title }}{% endblock %}
+{% block content %}
+  <section class="hero">
+    <h1>{{ site_title }}</h1>
+    <a class="button button-primary" href="{{ base }}introducao/">Acessar Quadro de Horários</a>
+  </section>
+
+  <section class="features">
+    <div class="feature-card">
+      <h2>Turmas</h2>
+      <p>Horários organizados por curso e turma.</p>
+      <a class="button" href="{{ base }}turma/">Ver turmas</a>
+    </div>
+    <div class="feature-card">
+      <h2>Professores</h2>
+      <p>Consulte o horário de cada docente.</p>
+      <a class="button" href="{{ base }}professor/">Ver professores</a>
+    </div>
+    <div class="feature-card">
+      <h2>Salas</h2>
+      <p>Veja a ocupação das salas e laboratórios.</p>
+      <a class="button" href="{{ base }}sala/">Ver salas</a>
+    </div>
+  </section>
+{% endblock %}

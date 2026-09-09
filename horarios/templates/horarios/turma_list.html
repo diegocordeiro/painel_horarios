@@ -1,0 +1,20 @@
+{% extends "horarios/base.html" %}
+{% block title %}Turmas — {{ site_title }}{% endblock %}
+{% block content %}
+  <h1>Turmas por curso</h1>
+  <p{% if versao %}>Versão: <strong>{{ versao.versao }}</strong>{% endif %}</p>
+  {% for curso in cursos %}
+    <h2 class="curso-title"><a href="{{ base }}curso/{{ curso.slug }}/">{{ curso.nome }}</a></h2>
+    <ul class="card-grid">
+      {% for turma in curso.turmas.all %}
+        <li class="card">
+          <a href="{{ base }}turma/{{ curso.slug }}/{{ turma.slug }}/">{{ turma.rotulo|default:turma.nome_completo }}</a>
+        </li>
+      {% empty %}
+        <li class="card muted">Nenhuma turma.</li>
+      {% endfor %}
+    </ul>
+  {% empty %}
+    <p>Nenhum curso cadastrado. Rode <code>import_timetable</code> e <code>seed_content</code>.</p>
+  {% endfor %}
+{% endblock %}

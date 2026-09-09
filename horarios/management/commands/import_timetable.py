@@ -16,7 +16,7 @@ from horarios.fet import (
     merge_slots,
     normalize_day,
     normalize_hour_range,
-    split_course_and_turma,
+    parse_course_turma_turno,
     split_plus,
 )
 from horarios.models import Aula, Curso, Professor, Sala, Turma, Versao
@@ -148,7 +148,7 @@ class Command(BaseCommand):
             if tag:
                 g["tag"] = tag
 
-        aprof, aturma, asala, acurso = {}, {}, {}, {}
+        aprof, aturma, asala, acurso, aturnos = {}, {}, {}, {}, {}
 
         def get_prof(nome):
             if nome not in aprof:
@@ -163,16 +163,24 @@ class Command(BaseCommand):
 
         def get_turma(nome):
             if nome not in aturma:
-                curso_name, rotulo = split_course_and_turma(nome)
+                curso_name, rotulo, turno = parse_course_turma_turno(nome)
                 if curso_name not in acurso:
                     acurso[curso_name] = Curso.objects.get_or_create(
                         nome=curso_name,
                         defaults={"posicao": get_course_position(curso_name)},
                     )[0]
-                aturma[nome] = Turma.objects.get_or_create(
+                    aturnos[curso_name] = set()
+                turma, _ = Turma.objects.get_or_create(
                     nome_completo=nome,
                     defaults={"curso": acurso[curso_name], "rotulo": rotulo},
-                )[0]
+                )
+                if turno:
+                    aturnos[curso_name].add(turno)
+                    novo_turno = " / ".join(sorted(aturnos[curso_name]))
+                    if acurso[curso_name].turno != novo_turno:
+                        acurso[curso_name].turno = novo_turno
+                        acurso[curso_name].save(update_fields=["turno"])
+                aturma[nome] = turma
             return aturma[nome]
 
         # Remove aulas antigas da versão (importação idempotente).

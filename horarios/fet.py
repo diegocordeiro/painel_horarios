@@ -102,6 +102,23 @@ def split_course_and_turma(full_name: str) -> tuple[str, str]:
     return match.group(1).strip(), match.group(2).strip()
 
 
+def parse_course_turma_turno(full_name: str) -> tuple[str, str, str]:
+    """'curso - turma (turno)' -> (curso, turma, turno).
+
+    Reaproveita split_course_and_turma para isolar o curso (antes do ' - ')
+    e, no restante, separa o rótulo da turma (antes do '(') do turno (entre
+    parênteses). Sobras à direita (ex.: número de sala) são descartadas.
+    """
+    curso, resto = split_course_and_turma(full_name)
+    turma = resto
+    turno = ""
+    match = re.match(r"^(.*?)\s*\((.*?)\)(.*)$", resto)
+    if match:
+        turma = match.group(1).strip()
+        turno = (match.group(2) or "").strip()
+    return curso, turma, turno
+
+
 def get_course_position(course_name: str) -> int:
     return COURSE_POSITIONS.get(url_slug(course_name), 9999)
 

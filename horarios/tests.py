@@ -8,6 +8,7 @@ from .fet import (
     merge_slots,
     normalize_day,
     normalize_hour_range,
+    parse_course_turma_turno,
     parse_csv_line,
     split_course_and_turma,
 )
@@ -36,6 +37,20 @@ class FetParsingTests(TestCase):
             ("Licenciatura em Física", "6º Período (Noite) 725"),
         )
         self.assertEqual(split_course_and_turma("Sem hífen"), ("Outros", "Sem hífen"))
+
+    def test_parse_course_turma_turno(self):
+        self.assertEqual(
+            parse_course_turma_turno("Técnico em Administração PROEJA - 1º ANO (NOITE)"),
+            ("Técnico em Administração PROEJA", "1º ANO", "NOITE"),
+        )
+        self.assertEqual(
+            parse_course_turma_turno("Licenciatura em Física - 6º Período (Noite) 725"),
+            ("Licenciatura em Física", "6º Período", "Noite"),
+        )
+        self.assertEqual(
+            parse_course_turma_turno("1º ADM PROEJA (NOITE)"),
+            ("Outros", "1º ADM PROEJA", "NOITE"),
+        )
 
     def test_merge_slots(self):
         result = merge_slots(["07:30 - 08:00", "08:00 - 08:30"])
@@ -71,3 +86,15 @@ class ImportTimetableTests(TestCase):
         self.assertGreater(Turma.objects.count(), 0)
         self.assertGreater(Aula.objects.count(), 0)
         self.assertTrue(Turma.objects.filter(nome_completo__contains="Administração").exists())
+        # O turno não deve ficar embutido no rótulo da turma.
+        self.assertFalse(Turma.objects.filter(rotulo__contains="(").exists())
+        # O rótulo da turma fica limpo e o curso é detectado pelo padrão.
+        turma = Turma.objects.get(
+            nome_completo="Técnico Integrado em Administração (Integrado) - 1º ADM (Manhã)"
+        )
+        self.assertEqual(turma.rotulo, "1º ADM")
+        self.assertEqual(turma.curso.nome, "Técnico Integrado em Administração (Integrado)")
+        # O turno da grade é registrado no campo turno do curso.
+        adm = Curso.objects.get(nome="Técnico Integrado em Administração (Integrado)")
+        self.assertIn("Manhã", adm.turno)
+        self.assertIn("Tarde", adm.turno)

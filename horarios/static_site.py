@@ -307,7 +307,7 @@ class StaticSite:
             self._write(
                 self._prefix_path(prefix, f"professor/{prof.slug}/index.html"),
                 "horarios/professor_detail.html",
-                self._ctx(versao=versao, professor=prof, grid=build_grid(aulas), kind="professor", active="professores"),
+                self._ctx(versao=versao, professor=prof, grid=build_grid(aulas), kind="professor", color=entity_color(prof.nome), active="professores"),
             )
 
     def render_salas(self, versao, prefix=""):
@@ -336,7 +336,7 @@ class StaticSite:
             self._write(
                 self._prefix_path(prefix, f"sala/{sala.slug}/index.html"),
                 "horarios/sala_detail.html",
-                self._ctx(versao=versao, sala=sala, grid=build_grid(aulas), kind="sala", active="salas"),
+                self._ctx(versao=versao, sala=sala, grid=build_grid(aulas), kind="sala", color=entity_color(sala.nome), active="salas"),
             )
 
     def render_cursos(self):

@@ -857,6 +857,14 @@ blockquote {
     grid-template-columns: 1fr;
   }
 
+
+/* Cores por tipo (aplicadas também aos .curso-card com data-tipo, ex.: /turma/) */
+.curso-card[data-tipo="Técnico (PROEJA)"] { --tipo: #ea580c; }
+.curso-card[data-tipo="Licenciatura"] { --tipo: #7c3aed; }
+.curso-card[data-tipo="Técnico Integrado"] { --tipo: #16a34a; }
+.curso-card[data-tipo="Técnico Subsequente"] { --tipo: #2563eb; }
+.curso-card[data-tipo="Tecnologia"] { --tipo: #0891b2; }
+
   /* ===== Aba ativa no nav ===== */
   .nav a {
     border-bottom: 2px solid transparent;

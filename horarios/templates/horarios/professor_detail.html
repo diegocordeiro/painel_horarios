@@ -4,7 +4,15 @@
   <nav class="breadcrumb">
     <a href="{{ base }}professor/">Professores</a> / <span>{{ professor.nome }}</span>
   </nav>
-  <h1>{{ professor.nome }}</h1>
-  <p class="subtle">Versão: {{ versao.versao }}</p>
+
+  <section class="curso-detail-hero" style="--tipo: {{ color }}">
+    <span class="curso-avatar large">{{ professor.nome|slice:":1" }}</span>
+    <div>
+      <span class="curso-badge">Professor(a)</span>
+      <h1>{{ professor.nome }}</h1>
+      <p class="muted">Versão: {{ versao.versao }}</p>
+    </div>
+  </section>
+
   {% include "horarios/_timetable.html" %}
 {% endblock %}

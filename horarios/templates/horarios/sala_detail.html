@@ -4,7 +4,15 @@
   <nav class="breadcrumb">
     <a href="{{ base }}sala/">Salas</a> / <span>{{ sala.nome }}</span>
   </nav>
-  <h1>{{ sala.nome }}</h1>
-  <p class="subtle">Versão: {{ versao.versao }}</p>
+
+  <section class="curso-detail-hero" style="--tipo: {{ color }}">
+    <span class="curso-avatar large">{{ sala.nome|slice:":1" }}</span>
+    <div>
+      <span class="curso-badge">Sala</span>
+      <h1>{{ sala.nome }}</h1>
+      {% if sala.predio %}<p class="muted">{{ sala.predio }}</p>{% endif %}
+    </div>
+  </section>
+
   {% include "horarios/_timetable.html" %}
 {% endblock %}

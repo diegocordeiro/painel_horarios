@@ -2,7 +2,7 @@
 from django.shortcuts import render, get_object_or_404
 
 from .models import Aula, Curso, Professor, Sala, Turma, Versao
-from .static_site import build_grid
+from .static_site import build_grid, entity_color
 
 
 def _versao():
@@ -62,7 +62,7 @@ def professor_detail(request, slug):
     return render(
         request,
         "horarios/professor_detail.html",
-        {"professor": prof, "versao": versao, "grid": build_grid(aulas), "kind": "professor"},
+        {"professor": prof, "versao": versao, "grid": build_grid(aulas), "kind": "professor", "color": entity_color(prof.nome)},
     )
 
 
@@ -77,7 +77,7 @@ def sala_detail(request, slug):
     return render(
         request,
         "horarios/sala_detail.html",
-        {"sala": sala, "versao": versao, "grid": build_grid(aulas), "kind": "sala"},
+        {"sala": sala, "versao": versao, "grid": build_grid(aulas), "kind": "sala", "color": entity_color(sala.nome)},
     )
 
 

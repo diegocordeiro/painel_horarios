@@ -4,46 +4,58 @@
   <nav class="breadcrumb">
     <a href="{{ base }}cursos/">Cursos</a> / <span>{{ curso.nome }}</span>
   </nav>
-  <h1>{{ curso.nome }}</h1>
 
-  <section>
-    <h2>Coordenação</h2>
-    <ul>
-      <li>Coordenador(a): <strong>{{ curso.coordenador }}</strong></li>
-      {% if curso.email %}<li>E-mail: <a href="mailto:{{ curso.email }}">{{ curso.email }}</a></li>{% endif %}
-      {% if curso.lattes %}<li>Lattes: <a href="{{ curso.lattes }}">{{ curso.lattes }}</a></li>{% endif %}
-    </ul>
+  <section class="curso-detail-hero" data-tipo="{{ curso.tipo }}">
+    <span class="curso-avatar large">{{ curso.nome|slice:":1" }}</span>
+    <div>
+      {% if curso.tipo %}<span class="curso-badge">{{ curso.tipo }}</span>{% endif %}
+      <h1>{{ curso.nome }}</h1>
+      {% if curso.modalidade %}<p class="muted">{{ curso.modalidade }}</p>{% endif %}
+    </div>
   </section>
 
-  <section>
-    <h2>Informações do curso</h2>
-    <ul>
-      <li>Modalidade: {{ curso.modalidade|default:"—" }}</li>
-      <li>Turno: {{ curso.turno|default:"—" }}</li>
-      <li>Carga horária: {{ curso.carga_horaria|default:"—" }}</li>
-      <li>Duração: {{ curso.duracao|default:"—" }}</li>
-    </ul>
-  </section>
+  <div class="curso-detail-grid">
+    <section class="panel">
+      <h2>Coordenação</h2>
+      <ul class="detail-list">
+        <li><span>Coordenador(a):</span> <strong>{{ curso.coordenador|default:"—" }}</strong></li>
+        {% if curso.email %}<li><span>E-mail:</span> <a href="mailto:{{ curso.email }}">{{ curso.email }}</a></li>{% endif %}
+        {% if curso.lattes %}<li><span>Lattes:</span> <a href="{{ curso.lattes }}">{{ curso.lattes }}</a></li>{% endif %}
+      </ul>
+    </section>
 
-  <section>
+    <section class="panel">
+      <h2>Informações do curso</h2>
+      <ul class="chip-list">
+        <li class="chip">Modalidade: {{ curso.modalidade|default:"—" }}</li>
+        <li class="chip">Turno: {{ curso.turno|default:"—" }}</li>
+        <li class="chip">Carga horária: {{ curso.carga_horaria|default:"—" }}</li>
+        <li class="chip">Duração: {{ curso.duracao|default:"—" }}</li>
+      </ul>
+    </section>
+  </div>
+
+  <section class="panel">
     <h2>PPCs</h2>
     {% if curso.ppcs %}
-      <ul>
+      <ul class="ppc-grid">
         {% for ppc in curso.ppcs %}
-          <li><a href="{{ base }}media/attachments/{{ ppc.file }}" target="_blank" rel="noopener noreferrer">{{ ppc.label }}</a></li>
+          <li><a class="ppc-card" href="{{ base }}media/attachments/{{ ppc.file }}" target="_blank" rel="noopener noreferrer"><span class="ppc-icon">📄</span><span>{{ ppc.label }}</span></a></li>
         {% endfor %}
       </ul>
     {% else %}
       <p class="muted">Nenhum PPC anexado.</p>
     {% endif %}
   </section>
-
-  <section>
+  <br/>
+  <section class="panel">
     <h2>Turmas</h2>
     <ul class="card-grid">
       {% for turma in curso.turmas.all %}
         <li class="card">
-          <a href="{{ base }}turma/{{ curso.slug }}/{{ turma.slug }}/">{{ turma.rotulo|default:turma.nome_completo }}</a>
+          <a class="turma-link" href="{{ base }}turma/{{ curso.slug }}/{{ turma.slug }}/">
+            <span class="turma-rotulo">{{ turma.rotulo|default:turma.nome_completo }}</span>
+          </a>
         </li>
       {% empty %}
         <li class="card muted">Nenhuma turma.</li>

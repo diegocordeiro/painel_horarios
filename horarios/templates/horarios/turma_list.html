@@ -1,8 +1,10 @@
 {% extends "horarios/base.html" %}
 {% block title %}Turmas — {{ site_title }}{% endblock %}
 {% block content %}
-  <h1>Turmas por curso</h1>
-  <p{% if versao %}>Versão: <strong>{{ versao.versao }}</strong>{% endif %}</p>
+  <section class="cursos-hero">
+    <h1>Turmas por curso</h1>
+    <p>Horários organizados por curso e turma.{% if versao %} Versão: <strong>{{ versao.versao }}</strong>{% endif %}</p>
+  </section>
 
   <div class="turma-tools">
     <input type="search" id="turmaSearch" class="turma-search"
@@ -21,9 +23,10 @@
 
         <ul class="card-grid">
           {% for turma in curso.turmas.all %}
-            <li class="card turma-card"
+            <li class="card turma-card" data-tipo="{{ curso.tipo }}"
                 data-search-text="{{ curso.nome }} {{ turma.rotulo }} {{ turma.nome_completo }} {{ curso.turno }} {{ curso.tipo }}">
               <a href="{{ base }}turma/{{ curso.slug }}/{{ turma.slug }}/" class="turma-link">
+                <span class="curso-badge">{{ curso.tipo|default:"Curso" }}</span>
                 <span class="turma-rotulo">{{ turma.rotulo|default:turma.nome_completo }}</span>
                 <span class="turma-sub">{{ curso.nome }}</span>
                 <span class="turma-turno">{{ curso.turno|default:"Turno não especificado" }}</span>

@@ -1,15 +1,19 @@
 {% extends "horarios/base.html" %}
 {% block title %}Salas — {{ site_title }}{% endblock %}
 {% block content %}
-  <h1>Salas e laboratórios</h1>
-  <ul class="card-grid">
+  <section class="cursos-hero">
+    <h1>Salas e laboratórios</h1>
+    <p>{{ salas|length }} espaço(s) do IFPI Campus Barras.</p>
+  </section>
+
+  <ul class="curso-grid">
     {% for sala in salas %}
-      <li class="card">
-        <a href="{{ base }}sala/{{ sala.slug }}/">{{ sala.nome }}</a>
-        {% if sala.predio %}<span class="muted"> — {{ sala.predio }}</span>{% endif %}
+      <li class="curso-card" style="--tipo: {{ sala.color }}">
+        <h2 class="curso-nome">{{ sala.nome }}</h2>
+        <a class="curso-link" href="{{ base }}sala/{{ sala.slug }}/">Ver horários →</a>
       </li>
     {% empty %}
-      <li class="card muted">Nenhuma sala cadastrada.</li>
+      <li class="curso-empty">Nenhuma sala cadastrada.</li>
     {% endfor %}
   </ul>
 {% endblock %}

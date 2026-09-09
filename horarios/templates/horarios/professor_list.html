@@ -1,14 +1,20 @@
 {% extends "horarios/base.html" %}
 {% block title %}Professores — {{ site_title }}{% endblock %}
 {% block content %}
-  <h1>Professores</h1>
-  <ul class="card-grid">
+  <section class="cursos-hero">
+    <h1>Professores</h1>
+    <p>{{ professores|length }} docente(s) do IFPI Campus Barras.</p>
+  </section>
+
+  <ul class="curso-grid">
     {% for prof in professores %}
-      <li class="card">
-        <a href="{{ base }}professor/{{ prof.slug }}/">{{ prof.nome }}</a>
+      <li class="curso-card" style="--tipo: {{ prof.color }}">
+        <span class="curso-badge">Professor(a)</span>
+        <h2 class="curso-nome">{{ prof.nome }}</h2>
+        <a class="curso-link" href="{{ base }}professor/{{ prof.slug }}/">Ver horário →</a>
       </li>
     {% empty %}
-      <li class="card muted">Nenhum professor cadastrado.</li>
+      <li class="curso-empty">Nenhum professor cadastrado.</li>
     {% endfor %}
   </ul>
 {% endblock %}

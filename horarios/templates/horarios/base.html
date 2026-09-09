@@ -16,12 +16,12 @@
         <img class="logo-dark" src="{{ static_url }}img/logoDark.svg" alt="IFPI - Campus Barras">
       </a>
       <nav class="nav">
-        <a href="{{ base }}">Início</a>
-        <a href="{{ base }}turma/">Turmas</a>
-        <a href="{{ base }}professor/">Professores</a>
-        <a href="{{ base }}sala/">Salas</a>
-        <a href="{{ base }}cursos/">Cursos</a>
-        <a href="{{ base }}versoes/">Versões</a>
+        <a href="{{ base }}" class="{% if active == 'inicio' %}active{% endif %}">Início</a>
+        <a href="{{ base }}turma/" class="{% if active == 'turmas' %}active{% endif %}">Turmas</a>
+        <a href="{{ base }}professor/" class="{% if active == 'professores' %}active{% endif %}">Professores</a>
+        <a href="{{ base }}sala/" class="{% if active == 'salas' %}active{% endif %}">Salas</a>
+        <a href="{{ base }}cursos/" class="{% if active == 'cursos' %}active{% endif %}">Cursos</a>
+        <a href="{{ base }}versoes/" class="{% if active == 'versoes' %}active{% endif %}">Versões</a>
         <button id="themeToggle" class="theme-btn" type="button">Tema</button>
       </nav>
     </div>

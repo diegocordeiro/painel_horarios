@@ -1,14 +1,27 @@
 {% extends "horarios/base.html" %}
 {% block title %}Cursos — {{ site_title }}{% endblock %}
 {% block content %}
-  <h1>Cursos do campus</h1>
-  <ul class="card-grid">
+  <section class="cursos-hero">
+    <h1>Cursos do campus</h1>
+    <p>{{ cursos|length }} curso(s) oferecido(s) no IFPI Campus Barras.</p>
+  </section>
+
+  <ul class="curso-grid">
     {% for curso in cursos %}
-      <li class="card">
-        <a href="{{ base }}curso/{{ curso.slug }}/">{{ curso.nome }}</a>
+      <li class="curso-card tipo-{{ curso.tipo_slug }}">
+        <span class="curso-avatar">{{ curso.nome|slice:":1" }}</span>
+        <span class="curso-badge">{{ curso.tipo|default:"Curso" }}</span>
+        <h2 class="curso-nome">{{ curso.nome }}</h2>
+        <ul class="curso-meta">
+          {% if curso.turno %}<li class="chip">Turno: {{ curso.turno }}</li>{% endif %}
+          {% if curso.modalidade %}<li class="chip">Modalidade: {{ curso.modalidade }}</li>{% endif %}
+          <li class="chip">{{ curso.turmas_count }} turma(s)</li>
+          {% if curso.coordenador %}<li class="chip">Coord.: {{ curso.coordenador }}</li>{% endif %}
+        </ul>
+        <a class="curso-link" href="{{ base }}curso/{{ curso.slug }}/">Ver curso →</a>
       </li>
     {% empty %}
-      <li class="card muted">Nenhum curso cadastrado.</li>
+      <li class="curso-empty">Nenhum curso cadastrado.</li>
     {% endfor %}
   </ul>
 {% endblock %}

@@ -498,3 +498,417 @@ blockquote {
     display: none;
   }
 }
+
+/* ===== Home: hero e features ===== */
+.home-hero {
+  display: grid;
+  gap: 1.5rem;
+  align-items: center;
+  text-align: center;
+  background: linear-gradient(135deg, #155f7a, #1f6f8b);
+  color: #fff;
+  padding: 2.4rem 2rem;
+  border-radius: 18px;
+  margin-bottom: 2.2rem;
+}
+
+.home-hero-text h1 {
+  margin: 0 0 .6rem;
+}
+
+.home-hero-text p {
+  opacity: .92;
+  margin: 0 0 1.1rem;
+}
+
+.home-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .6rem;
+}
+
+.home-hero .button {
+  background: rgba(255, 255, 255, .14);
+  color: #fff;
+  border-color: rgba(255, 255, 255, .4);
+  margin-top: 0;
+}
+
+.home-hero .button-primary {
+  background: #fff;
+  color: #155f7a;
+  border-color: #fff;
+}
+
+.home-hero .button-primary:hover {
+  background: #f0f4f8;
+}
+
+.home-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: .8rem;
+}
+
+.stat {
+  background: rgba(255, 255, 255, .12);
+  border: 1px solid rgba(255, 255, 255, .22);
+  border-radius: 14px;
+  text-align: center;
+  padding: 1rem .5rem;
+}
+
+.stat span {
+  display: block;
+  font-size: 1.7rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.stat small {
+  opacity: .85;
+  font-size: .76rem;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.feature-icon {
+  font-size: 1.9rem;
+  margin-bottom: .5rem;
+}
+
+.feature-card {
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px -12px rgba(0, 0, 0, .25);
+}
+
+/* ===== Listagem de cursos ===== */
+.cursos-hero {
+  margin-bottom: 1.8rem;
+}
+
+.cursos-hero p {
+  color: var(--muted);
+  margin: 0;
+}
+
+.curso-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.curso-card {
+  --tipo: var(--primary);
+  position: relative;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.4rem 1.4rem 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: .7rem;
+  overflow: hidden;
+  transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+}
+
+.curso-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: var(--tipo);
+}
+
+.curso-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 16px 30px -14px rgba(0, 0, 0, .3);
+  border-color: var(--tipo);
+}
+
+.curso-avatar {
+  width: 52px;
+  height: 52px;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--tipo, var(--primary));
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  border-radius: 14px;
+}
+
+.curso-avatar.large {
+  width: 68px;
+  height: 68px;
+  font-size: 2rem;
+  border-radius: 18px;
+}
+
+.curso-badge {
+  align-self: flex-start;
+  background: color-mix(in srgb, var(--tipo, var(--primary)) 18%, transparent);
+  color: var(--tipo, var(--primary));
+  font-size: 1rem;
+  font-weight: 700;
+  border-radius: 999px;
+}
+
+.curso-nome {
+  margin: 0;
+  font-size: 1.15rem;
+  line-height: 1.3;
+}
+
+.curso-meta {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .45rem;
+}
+
+.chip {
+  background: var(--accent);
+  color: var(--text);
+  border: 1px solid var(--border);
+  font-size: .74rem;
+  padding: .22rem .6rem;
+  border-radius: 999px;
+}
+
+.curso-link {
+  margin-top: auto;
+  font-weight: 700;
+  align-self: flex-start;
+  padding-bottom: .2rem;
+  border-bottom: 2px solid var(--tipo, var(--primary));
+  color: var(--text);
+}
+
+.curso-link:hover {
+  color: var(--tipo, var(--primary));
+  text-decoration: none;
+}
+
+.curso-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: var(--muted);
+  padding: 2.4rem 1rem;
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+}
+
+/* Cores por tipo (listagem) */
+.curso-card.tipo-licenciatura {
+  --tipo: #7c3aed;
+}
+
+.curso-card.tipo-integrado {
+  --tipo: #16a34a;
+}
+
+.curso-card.tipo-subsequente {
+  --tipo: #2563eb;
+}
+
+.curso-card.tipo-proeja {
+  --tipo: #ea580c;
+}
+
+.curso-card.tipo-tecnologia {
+  --tipo: #0891b2;
+}
+
+.curso-card.tipo-geral {
+  --tipo: var(--primary);
+}
+
+/* ===== Detalhe do curso ===== */
+.curso-detail-hero {
+  --tipo: var(--primary);
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+  padding: 1.5rem 1.6rem;
+  margin: 0 0 1.6rem;
+  border-radius: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 6px solid var(--tipo);
+}
+
+.curso-detail-hero h1 {
+  margin: .3rem 0 0;
+  font-size: 1.6rem;
+}
+
+.curso-detail-hero[data-tipo="Técnico (PROEJA)"] {
+  --tipo: #ea580c;
+}
+
+.curso-detail-hero[data-tipo="Licenciatura"] {
+  --tipo: #7c3aed;
+}
+
+.curso-detail-hero[data-tipo="Técnico Integrado"] {
+  --tipo: #16a34a;
+}
+
+.curso-detail-hero[data-tipo="Técnico Subsequente"] {
+  --tipo: #2563eb;
+}
+
+.curso-detail-hero[data-tipo="Tecnologia"] {
+  --tipo: #0891b2;
+}
+
+.curso-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.6rem;
+}
+
+.panel {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.3rem 1.4rem;
+}
+
+.panel h2 {
+  margin-top: 0;
+  font-size: 1.05rem;
+}
+
+.detail-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: .5rem;
+}
+
+.detail-list span {
+  color: var(--muted);
+  margin-right: .3rem;
+}
+
+.chip-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+}
+
+.ppc-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: .8rem;
+}
+
+.ppc-card {
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+  background: var(--accent);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: .8rem 1rem;
+  color: var(--text);
+  font-weight: 600;
+  transition: border-color .15s ease, transform .15s ease;
+}
+
+.ppc-card:hover {
+  border-color: var(--primary);
+  transform: translateY(-2px);
+  text-decoration: none;
+}
+
+.ppc-icon {
+  font-size: 1.3rem;
+}
+
+@media (max-width: 780px) {
+
+  .home-hero,
+  .curso-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* ===== Aba ativa no nav ===== */
+  .nav a {
+    border-bottom: 2px solid transparent;
+  }
+
+  .nav a.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+  }
+
+  /* ===== Cards de turma (identidade por tipo do curso) ===== */
+  .turma-card {
+    --tipo: var(--primary);
+    position: relative;
+    overflow: hidden;
+    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+  }
+
+  .turma-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: var(--tipo);
+  }
+
+  .turma-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px -12px rgba(0, 0, 0, .3);
+    border-color: var(--tipo);
+  }
+
+  .turma-card[data-tipo="Técnico (PROEJA)"] {
+    --tipo: #ea580c;
+  }
+
+  .turma-card[data-tipo="Licenciatura"] {
+    --tipo: #7c3aed;
+  }
+
+  .turma-card[data-tipo="Técnico Integrado"] {
+    --tipo: #16a34a;
+  }
+
+  .turma-card[data-tipo="Técnico Subsequente"] {
+    --tipo: #2563eb;
+  }
+
+  .turma-card[data-tipo="Tecnologia"] {
+    --tipo: #0891b2;
+  }
+
+}

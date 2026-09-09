@@ -1,65 +1,121 @@
-# Horários IFPI – Campus Barras (versão Django)
+# Quadro de Horários — IFPI Campus Barras
 
-Sistema em **Python + Django** que gera um **site estático** com a mesma estrutura do
-portal Docusaurus atual (turmas, professores, salas, cursos, campus e histórico de
-versões). Ele lê o CSV exportado pelo **FET** (https://lalescu.ro/liviu/fet/) como
-"carga de horários" e publica o resultado em **GitHub Pages**.
-
-## Estrutura
-
-- `horarios/` — aplicação Django (models, importador FET, gerador estático, templates).
-- `config/` — settings/urls do projeto.
-- `static/` — logo, favicon e CSS/JS do site.
-- `media/attachments/` — PPCs (PDFs) dos cursos.
-- `HorarioOficial_timetable.csv` — saída do FET (colunas `Day, Hour, Students Sets,
-  Subject, Teachers, Room`, entre outras).
-- `.github/workflows/deploy.yml` — build + publicação no GitHub Pages.
+Sistema em **Python + Django** que converte a carga de horários exportada pelo
+**FET** ([Flexible Timetabling](https://lalescu.ro/liviu/fet/)) em um **site estático**,
+publicado no **GitHub Pages** com a mesma estrutura do portal anterior (turmas,
+professores, salas, cursos, campus e histórico de versões).
 
 ## Como funciona
 
-1. **Importar o CSV do FET** (popula o banco com uma versão):
+Fluxo completo, da grade gerada no FET até a publicação:
+
+```
+FET (exporta .csv) → import_timetable → seed_content → render_static_site → build/ → GitHub Pages
+```
+
+1. **Importar o CSV do FET** — popula o banco com uma versão do quadro:
 
    ```bash
-   python manage.py import_timetable HorarioOficial_timetable.csv \
+   python manage.py import_timetable barras_timetable.csv \
      --versao 2026.2.v4 --inicio 2026-09-03 --atual
    ```
 
-2. **Semear os metadados dos cursos** (coordenação, PPCs, etc.):
+2. **Semear os metadados dos cursos** — coordenação, PPCs, carga horária, etc.:
 
    ```bash
    python manage.py seed_content
    ```
 
-3. **Gerar o site estático** (pasta `build/`):
+3. **Gerar o site estático** — grava as páginas HTML na pasta `build/`:
 
    ```bash
    python manage.py render_static_site
    ```
 
-4. **Publicar** o conteúdo de `build/` no GitHub Pages (o workflow faz isso
-   automaticamente a cada push na branch `main`).
+4. **Publicar** — o conteúdo de `build/` é enviado ao GitHub Pages pelo workflow
+   (automaticamente a cada push na branch `main`).
 
-> A base URL (subpath `/ifpisrn-horarios/` ou `/`) é calculada dinamicamente a partir
-> do nome do repositório, então funciona em qualquer conta/organização, sem hardcode.
+> A base URL (`/repo/` em *project pages* ou `/` em *user/org pages*) é calculada
+> dinamicamente a partir do nome do repositório, então funciona em qualquer
+> conta/organização, sem hardcode.
 
-## Desenvolvimento (prévia local)
+## Recursos
+
+- **Grade por turma, professor e sala**, com slots contíguos unidos e legendas;
+- **Cores estáveis por disciplina** (derivadas de um hash do nome), com legenda na
+  grade;
+- **Modos de visualização**: Completo, Condensado e Super condensado;
+- **Tema claro/escuro** persistido no `localStorage` e aderente ao
+  `prefers-color-scheme`;
+- **Busca client-side** na listagem de turmas (ignora acentos e filtra por curso,
+  turma ou turno);
+- **Histórico de versões** publicado sob `/versoes/<versao>/`;
+- **Páginas de curso** com PPCs (PDFs em `media/attachments/`) e **páginas do
+  campus** (administração, calendário acadêmico e setor de saúde).
+
+## Estrutura do projeto
+
+```
+barras_horarios/
+├── horarios/            # Aplicação Django (models, importador FET, gerador estático, views, templates)
+│   ├── management/commands/   # import_timetable, seed_content, render_static_site
+│   ├── fet.py                 # Parsing/normalização do CSV do FET
+│   ├── static_site.py         # Geração do site estático (build/)
+│   └── templates/horarios/    # Templates das páginas e da grade
+├── config/              # Settings/urls do projeto Django
+├── static/              # Logo, favicon, CSS e JS do site
+├── media/attachments/   # PPCs (PDFs) dos cursos
+├── .github/workflows/deploy.yml  # Build + publicação no GitHub Pages
+├── manage.py
+└── requirements.txt
+```
+
+## Modelo de dados
+
+- `Versao` — uma versão/histórico do quadro (o campo `atual` marca a vigente).
+- `Curso` — curso do campus, com tipo, modalidade, turno, coordenação e PPCs.
+- `Professor`, `Sala`, `Turma` — entidades com `slug` gerado automaticamente.
+- `Aula` — bloco de aula (com slots contíguos unidos), ligada a `Versao` e às
+  entidades por relacionamentos M2M.
+
+## Pré-requisitos
+
+- **Python 3.13+** (versão usada no CI);
+- **Django 5.2.13** (definido em `requirements.txt`);
+- **FET** para gerar o CSV da grade.
+
+## Desenvolvimento local (prévia)
 
 ```bash
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 python manage.py migrate
-python manage.py import_timetable HorarioOficial_timetable.csv --versao 2026.2.v4 --inicio 2026-09-03 --atual
+python manage.py import_timetable barras_timetable.csv --versao 2026.2.v4 --inicio 2026-09-03 --atual
 python manage.py seed_content
 python manage.py runserver
 ```
 
 Abra `http://127.0.0.1:8000/`.
 
+## Comandos de gestão
+
+| Comando              | Descrição                               | Argumentos relevantes                                   |
+| -------------------- | --------------------------------------- | ------------------------------------------------------- |
+| `import_timetable`   | Importa o CSV do FET e popula o banco   | `csv_path`, `--versao`, `--inicio`, `--fim`, `--atual`  |
+| `seed_content`       | Popula/atualiza os metadados dos cursos | —                                                       |
+| `render_static_site` | Gera o site estático em `build/`        | `--output`                                              |
+
 ## Importar uma nova versão
 
-Só é preciso rodar o passo 1 com `--versao` (e `--atual`) novo, seguido de
-`seed_content` e `render_static_site`. As versões antigas são preservadas e ficam
-divulgadas sob `/versoes/<versao>/`.
+Basta rodar o passo 1 com `--versao` (e `--atual`) novo, seguido de `seed_content`
+e `render_static_site`. As versões antigas são preservadas e ficam disponíveis sob
+`/versoes/<versao>/`.
+
+## Publicação (GitHub Pages)
+
+O workflow `.github/workflows/deploy.yml` executa o build e o deploy a cada push na
+branch `main` (ou manualmente via *workflow_dispatch*). Ele migra o banco, importa o
+CSV, semeia os metadados, gera o site estático e publica `build/` no GitHub Pages.
 
 ## Testes
 
@@ -67,9 +123,12 @@ divulgadas sob `/versoes/<versao>/`.
 python manage.py test
 ```
 
-## Modelo de dados
+## Observações sobre o CSV
 
-- `Versao` — uma versão/histórico do quadro.
-- `Curso`, `Professor`, `Sala`, `Turma` — entidades.
-- `Aula` — bloco de aula (com slots contíguos unidos), ligado a `Versao` e às
-  entidades por M2M.
+- `*.csv` está no `.gitignore`, então o CSV exportado pelo FET **não é versionado**.
+  O nome do arquivo pode variar conforme a exportação.
+- O exemplo local atual é `barras_timetable.csv`. Já o workflow
+  (`.github/workflows/deploy.yml`) e a suíte de testes referenciam
+  `HorarioOficial_timetable.csv` — o que hoje faz os testes falharem com
+  `FileNotFoundError`. Ajuste o nome do arquivo (ou a referência) para o CSV
+  utilizado.

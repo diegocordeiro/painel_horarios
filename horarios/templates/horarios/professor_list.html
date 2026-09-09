@@ -6,9 +6,15 @@
     <p>{{ professores|length }} docente(s) do IFPI Campus Barras.</p>
   </section>
 
-  <ul class="curso-grid">
+  <div class="turma-tools">
+    <input type="search" id="professorSearch" class="turma-search"
+           placeholder="Buscar por professor…" autocomplete="off">
+    <span class="turma-count" id="professorCount"></span>
+  </div>
+
+  <ul class="curso-grid" id="professorGrid">
     {% for prof in professores %}
-      <li class="curso-card">
+      <li class="curso-card" data-search-text="{{ prof.nome }}">
         <span class="curso-badge">Professor(a)</span>
         <h2 class="curso-nome">{{ prof.nome }}</h2>
         <a class="curso-link" href="{{ base }}professor/{{ prof.slug }}/">Ver horário →</a>
@@ -17,4 +23,44 @@
       <li class="curso-empty">Nenhum professor cadastrado.</li>
     {% endfor %}
   </ul>
+
+  <div class="turma-empty hidden" id="professorEmpty">Nenhum professor encontrado. Tente outro termo.</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  (function () {
+    var input = document.getElementById('professorSearch');
+    var grid = document.getElementById('professorGrid');
+    var countEl = document.getElementById('professorCount');
+    var emptyEl = document.getElementById('professorEmpty');
+    if (!input || !grid) return;
+    var cards = Array.prototype.slice.call(grid.querySelectorAll('.curso-card[data-search-text]'));
+
+    function norm(s) {
+      return (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+    }
+
+    function update() {
+      var term = norm(input.value);
+      var visible = 0;
+      cards.forEach(function (card) {
+        var match = !term || norm(card.getAttribute('data-search-text')).indexOf(term) !== -1;
+        card.style.display = match ? '' : 'none';
+        if (match) visible++;
+      });
+      if (countEl) {
+        countEl.textContent = !term
+          ? cards.length + ' docente(s)'
+          : visible + ' de ' + cards.length + ' docente(s)';
+      }
+      if (emptyEl) {
+        emptyEl.classList.toggle('hidden', !term || visible > 0);
+      }
+    }
+
+    input.addEventListener('input', update);
+    update();
+  })();
+</script>
 {% endblock %}

@@ -6,9 +6,15 @@
     <p>{{ cursos|length }} curso(s) oferecido(s) no IFPI Campus Barras.</p>
   </section>
 
-  <ul class="curso-grid">
+  <div class="turma-tools">
+    <input type="search" id="cursoSearch" class="turma-search"
+           placeholder="Buscar por curso, turno, modalidade…" autocomplete="off">
+    <span class="turma-count" id="cursoCount"></span>
+  </div>
+
+  <ul class="curso-grid" id="cursoGrid">
     {% for curso in cursos %}
-      <li class="curso-card">
+      <li class="curso-card" data-search-text="{{ curso.nome }} {{ curso.tipo }} {{ curso.turno }} {{ curso.modalidade }} {{ curso.coordenador }}">
         <span class="curso-avatar">{{ curso.nome|slice:":1" }}</span>
         <h2 class="curso-nome">{{ curso.nome }}</h2>
         <ul class="curso-meta">
@@ -23,4 +29,44 @@
       <li class="curso-empty">Nenhum curso cadastrado.</li>
     {% endfor %}
   </ul>
+
+  <div class="turma-empty hidden" id="cursoEmpty">Nenhum curso encontrado. Tente outro termo.</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  (function () {
+    var input = document.getElementById('cursoSearch');
+    var grid = document.getElementById('cursoGrid');
+    var countEl = document.getElementById('cursoCount');
+    var emptyEl = document.getElementById('cursoEmpty');
+    if (!input || !grid) return;
+    var cards = Array.prototype.slice.call(grid.querySelectorAll('.curso-card[data-search-text]'));
+
+    function norm(s) {
+      return (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+    }
+
+    function update() {
+      var term = norm(input.value);
+      var visible = 0;
+      cards.forEach(function (card) {
+        var match = !term || norm(card.getAttribute('data-search-text')).indexOf(term) !== -1;
+        card.style.display = match ? '' : 'none';
+        if (match) visible++;
+      });
+      if (countEl) {
+        countEl.textContent = !term
+          ? cards.length + ' curso(s)'
+          : visible + ' de ' + cards.length + ' curso(s)';
+      }
+      if (emptyEl) {
+        emptyEl.classList.toggle('hidden', !term || visible > 0);
+      }
+    }
+
+    input.addEventListener('input', update);
+    update();
+  })();
+</script>
 {% endblock %}

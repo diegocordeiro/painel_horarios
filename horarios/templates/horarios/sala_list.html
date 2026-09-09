@@ -6,9 +6,15 @@
     <p>{{ salas|length }} espaço(s) do IFPI Campus Barras.</p>
   </section>
 
-  <ul class="curso-grid">
+  <div class="turma-tools">
+    <input type="search" id="salaSearch" class="turma-search"
+           placeholder="Buscar por sala ou laboratório…" autocomplete="off">
+    <span class="turma-count" id="salaCount"></span>
+  </div>
+
+  <ul class="curso-grid" id="salaGrid">
     {% for sala in salas %}
-      <li class="curso-card">
+      <li class="curso-card" data-search-text="{{ sala.nome }} {{ sala.predio }}">
         <h2 class="curso-nome">{{ sala.nome }}</h2>
         <a class="curso-link" href="{{ base }}sala/{{ sala.slug }}/">Ver horários →</a>
       </li>
@@ -16,4 +22,44 @@
       <li class="curso-empty">Nenhuma sala cadastrada.</li>
     {% endfor %}
   </ul>
+
+  <div class="turma-empty hidden" id="salaEmpty">Nenhuma sala encontrada. Tente outro termo.</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  (function () {
+    var input = document.getElementById('salaSearch');
+    var grid = document.getElementById('salaGrid');
+    var countEl = document.getElementById('salaCount');
+    var emptyEl = document.getElementById('salaEmpty');
+    if (!input || !grid) return;
+    var cards = Array.prototype.slice.call(grid.querySelectorAll('.curso-card[data-search-text]'));
+
+    function norm(s) {
+      return (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+    }
+
+    function update() {
+      var term = norm(input.value);
+      var visible = 0;
+      cards.forEach(function (card) {
+        var match = !term || norm(card.getAttribute('data-search-text')).indexOf(term) !== -1;
+        card.style.display = match ? '' : 'none';
+        if (match) visible++;
+      });
+      if (countEl) {
+        countEl.textContent = !term
+          ? cards.length + ' espaço(s)'
+          : visible + ' de ' + cards.length + ' espaço(s)';
+      }
+      if (emptyEl) {
+        emptyEl.classList.toggle('hidden', !term || visible > 0);
+      }
+    }
+
+    input.addEventListener('input', update);
+    update();
+  })();
+</script>
 {% endblock %}

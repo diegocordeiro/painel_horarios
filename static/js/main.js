@@ -37,7 +37,7 @@
     });
   }
 
-  var toolbar = table.previousElementSibling;
+  var toolbar = document.querySelector('.timetable-toolbar') || table.previousElementSibling;
   var modeBtns = (toolbar && toolbar.querySelectorAll) ? toolbar.querySelectorAll('.mode-btn') : [];
   Array.prototype.forEach.call(modeBtns, function (b) {
     b.addEventListener('click', function () {
@@ -46,4 +46,8 @@
       apply(b.getAttribute('data-mode'));
     });
   });
+
+  // Aplica o modo padrão ao abrir a página (botão ativo no HTML, ou superCondensed).
+  var current = (toolbar && toolbar.querySelector) ? toolbar.querySelector('.mode-btn.active') : null;
+  apply(current ? current.getAttribute('data-mode') : 'superCondensed');
 })();

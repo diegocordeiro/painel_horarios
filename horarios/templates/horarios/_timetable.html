@@ -1,11 +1,17 @@
 {% load filters %}
+{% if grid.subject_legend %}
+<style>
+  {% for c in grid.subject_legend %}
+  .{{ c.cls }} { --class-color: {{ c.color }}; }
+  {% endfor %}
+</style>
+{% endif %}
 <div class="timetable-toolbar">
   <span>Visualização:</span>
-  <button class="mode-btn active" data-mode="completed" type="button">Completo</button>
+  <button class="mode-btn" data-mode="completed" type="button">Completo</button>
   <button class="mode-btn" data-mode="condensed" type="button">Condensado</button>
-  <button class="mode-btn" data-mode="superCondensed" type="button">Super condensado</button>
+  <button class="mode-btn active" data-mode="superCondensed" type="button">Super condensado</button>
 </div>
-
 <table class="timetable"
        id="timetable"
        data-first="{{ grid.first_row }}"
@@ -29,8 +35,8 @@
         {% for day in grid.days %}
           {% with cell=row.cells|get_item:day %}
           {% if cell.type != 'covered' %}
-          <td class="day-cell{% if cell.type == 'class' %} has-class{% endif %}{% if day in grid.active_days %} day-active{% endif %}"
-              data-day="{{ day }}"{% if cell.type == 'class' %} rowspan="{{ cell.rowspan }}" style="--class-color: {{ cell.color }}"{% endif %}>
+          <td class="day-cell{% if cell.type == 'class' %} has-class {{ cell.cls }}{% endif %}{% if day in grid.active_days %} day-active{% endif %}"
+              data-day="{{ day }}"{% if cell.type == 'class' %} rowspan="{{ cell.rowspan }}"{% endif %}>
             {% if cell.type == 'class' %}
               <div class="class-card">
                 <div class="class-subject">{{ cell.subject }}</div>
@@ -67,3 +73,17 @@
     {% endfor %}
   </tbody>
 </table>
+
+{% if grid.subject_legend %}
+<div class="subject-legend">
+  <strong>Cor por disciplina</strong>
+  <ul>
+    {% for c in grid.subject_legend %}
+    <li class="legend-item">
+      <span class="legend-swatch {{ c.cls }}"></span>
+      <span class="legend-name">{{ c.name }}</span>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}

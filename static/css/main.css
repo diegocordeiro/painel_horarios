@@ -274,6 +274,7 @@ blockquote {
 
 .timetable {
   width: 100%;
+  --class-color: #e0e6ef;
   border-collapse: collapse;
   table-layout: fixed;
   background: var(--surface);
@@ -309,9 +310,8 @@ blockquote {
 }
 
 .class-card {
-  --class-color: #e0e6ef;
-  background: color-mix(in srgb, var(--class-color) 20%, var(--surface));
-  border-left: 4px solid var(--class-color);
+  background: color-mix(in srgb, var(--class-color) 42%, var(--surface));
+  border-left: 6px solid var(--class-color);
   height: 100%;
   padding: .4rem .5rem;
   font-size: .8rem;
@@ -334,6 +334,47 @@ blockquote {
   border-radius: 4px;
   padding: 0 .3rem;
   font-size: .7rem;
+}
+
+/* Legenda de disciplinas */
+.subject-legend {
+  margin-top: 1rem;
+  font-size: .85rem;
+  color: var(--muted);
+}
+
+.subject-legend strong {
+  display: block;
+  margin-bottom: .4rem;
+  color: var(--text);
+}
+
+.subject-legend ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem .9rem;
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+}
+
+.legend-swatch {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  background: var(--class-color, #e0e6ef);
+  flex: none;
+}
+
+.legend-name {
+  color: var(--text);
 }
 
 @media (max-width: 720px) {

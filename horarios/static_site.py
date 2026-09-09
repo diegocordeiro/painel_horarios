@@ -10,6 +10,7 @@ from pathlib import Path
 
 from django.conf import settings
 from django.template.loader import render_to_string
+from django.utils.text import slugify
 
 from .fet import DAY_ORDER, normalize_day
 from .models import Aula, Curso, Professor, Sala, Turma, Versao
@@ -72,6 +73,11 @@ def _subject_color(subject: str) -> str:
     return f"hsl({hue}, {sat}%, {light}%)"
 
 
+def _subject_slug(subject: str) -> str:
+    """Slug CSS estável por disciplina (ex.: 's-analise-de-dados')."""
+    return "s-" + slugify(subject)
+
+
 def build_grid(aulas):
     """Constrói a estrutura de grade consumida pelo template _timetable.html."""
     slots = make_slots()
@@ -87,13 +93,18 @@ def build_grid(aulas):
         end_idx = slot_index(aula.hora_fim, slots)
         rowspan = max(end_idx - start_idx, 1)
         if aula.disciplina not in color_cache:
-            color_cache[aula.disciplina] = _subject_color(aula.disciplina)
+            color_cache[aula.disciplina] = {
+                "color": _subject_color(aula.disciplina),
+                "cls": _subject_slug(aula.disciplina),
+            }
+        meta = color_cache[aula.disciplina]
         cell = {
             "type": "class",
             "subject": aula.disciplina,
             "time": f"{aula.hora_inicio} - {aula.hora_fim}",
             "rowspan": rowspan,
-            "color": color_cache[aula.disciplina],
+            "color": meta["color"],
+            "cls": meta["cls"],
             "sala": {"nome": aula.sala.nome, "slug": aula.sala.slug} if aula.sala_id else None,
             "professores": [{"nome": p.nome, "slug": p.slug} for p in aula.professores.all()],
             "turmas": [
@@ -128,6 +139,10 @@ def build_grid(aulas):
         "first_row": first_row,
         "last_row": last_row,
         "total_rows": n,
+        "subject_legend": [
+            {"name": d, "cls": m["cls"], "color": m["color"]}
+            for d, m in color_cache.items()
+        ],
     }
 
 

@@ -8,7 +8,7 @@
 
   <ul class="curso-grid">
     {% for curso in cursos %}
-      <li class="curso-card tipo-{{ curso.tipo_slug }}">
+      <li class="curso-card">
         <span class="curso-avatar">{{ curso.nome|slice:":1" }}</span>
         <h2 class="curso-nome">{{ curso.nome }}</h2>
         <ul class="curso-meta">

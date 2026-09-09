@@ -8,7 +8,7 @@
 
   <ul class="curso-grid">
     {% for sala in salas %}
-      <li class="curso-card" style="--tipo: {{ sala.color }}">
+      <li class="curso-card">
         <h2 class="curso-nome">{{ sala.nome }}</h2>
         <a class="curso-link" href="{{ base }}sala/{{ sala.slug }}/">Ver horários →</a>
       </li>

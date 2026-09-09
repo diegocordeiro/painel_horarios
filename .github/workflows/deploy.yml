@@ -16,7 +16,7 @@ concurrency:
 
 env:
   # Versão e início da grade publicada. Ajuste ao trocar o semestre.
-  TIMETABLE_VERSION: "2026.2.v2"
+  TIMETABLE_VERSION: "2026.2.v1"
   TIMETABLE_START: "2026-09-14"
 
 jobs:

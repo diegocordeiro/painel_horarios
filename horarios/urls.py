@@ -12,6 +12,7 @@ urlpatterns = [
     path("professor/<slug>/", views.professor_detail, name="professor_detail"),
     path("sala/", views.sala_list, name="sala_list"),
     path("sala/<slug>/", views.sala_detail, name="sala_detail"),
+    path("carga-horaria/", views.carga_horaria, name="carga_horaria"),
     path("cursos/", views.curso_list, name="curso_list"),
     path("curso/<slug>/", views.curso_detail, name="curso_detail"),
     path("campus/administracao/", views.campus_administracao, name="campus_administracao"),

@@ -64,6 +64,7 @@ class Command(BaseCommand):
         site.render_turmas(atual, prefix="")
         site.render_professores(atual, prefix="")
         site.render_salas(atual, prefix="")
+        site.render_carga_horaria(atual, prefix="")
         site.render_cursos()
 
         # Versões antigas ficam sob /versoes/<slug>/...
@@ -72,5 +73,6 @@ class Command(BaseCommand):
             site.render_turmas(versao, prefix=prefix)
             site.render_professores(versao, prefix=prefix)
             site.render_salas(versao, prefix=prefix)
+            site.render_carga_horaria(versao, prefix=prefix)
 
         self.stdout.write(self.style.SUCCESS(f"Site estático gerado em: {build_root}"))

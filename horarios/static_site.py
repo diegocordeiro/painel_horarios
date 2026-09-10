@@ -14,6 +14,7 @@ from django.utils.text import slugify
 
 from urllib.parse import urlparse
 
+from .carga_horaria import build_carga_horaria
 from .fet import DAY_ORDER, normalize_day
 from .models import Aula, Curso, Professor, Sala, Turma, Versao
 
@@ -256,7 +257,9 @@ class StaticSite:
 
     def _aulas_versao(self, versao_id):
         return list(
-            Aula.objects.filter(versao_id=versao_id).prefetch_related("professores", "turmas", "sala")
+            Aula.objects.filter(versao_id=versao_id).prefetch_related(
+                "professores", "turmas__curso", "sala"
+            )
         )
 
     def _prefix_path(self, prefix, path):
@@ -350,6 +353,20 @@ class StaticSite:
                 "horarios/sala_detail.html",
                 self._ctx(prefix=prefix, versao=versao, sala=sala, grid=build_grid(aulas), kind="sala", color=entity_color(sala.nome), active="salas"),
             )
+
+    def render_carga_horaria(self, versao, prefix=""):
+        """Gera o dashboard de carga horária do professor para a versão.
+
+        Como as demais páginas, é gravado na versão atual (raiz) e também sob
+        ``/versoes/<slug>/`` para cada versão histórica, ficando versionado junto
+        com cada carga de horário.
+        """
+        dados = build_carga_horaria(self._aulas_versao(versao.id))
+        self._write(
+            self._prefix_path(prefix, "carga-horaria/index.html"),
+            "horarios/carga_horaria.html",
+            self._ctx(prefix=prefix, versao=versao, active="carga_horaria", **dados),
+        )
 
     def render_cursos(self):
         cursos = [

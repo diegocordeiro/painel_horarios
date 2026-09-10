@@ -2,6 +2,7 @@
 from django.shortcuts import render, get_object_or_404
 
 from .models import Aula, Curso, Professor, Sala, Turma, Versao
+from .carga_horaria import build_carga_horaria
 from .static_site import build_grid, entity_color
 
 
@@ -90,6 +91,19 @@ def sala_detail(request, slug):
         "horarios/sala_detail.html",
         {"sala": sala, "versao": versao, "grid": build_grid(aulas), "kind": "sala", "color": entity_color(sala.nome)},
     )
+
+
+def carga_horaria(request):
+    versao = _versao()
+    aulas = (
+        Aula.objects.filter(versao=versao)
+        .prefetch_related("professores", "turmas__curso")
+        if versao
+        else Aula.objects.none()
+    )
+    context = build_carga_horaria(list(aulas))
+    context["versao"] = versao
+    return render(request, "horarios/carga_horaria.html", context)
 
 
 def curso_list(request):

@@ -14,6 +14,8 @@ def _active_for_path(path: str) -> str:
         return "turmas"
     if path.startswith("/professor/"):
         return "professores"
+    if path.startswith("/carga-horaria/"):
+        return "carga_horaria"
     if path.startswith("/sala/"):
         return "salas"
     if path.startswith("/cursos/") or path.startswith("/curso/"):

@@ -60,7 +60,11 @@ FET (exporta .csv) → import_versoes → render_static_site → build/ → GitH
   `prefers-color-scheme`;
 - **Busca client-side** na listagem de turmas (ignora acentos e filtra por curso,
   turma ou turno);
-- **Histórico de versões** publicado sob `/versoes/<versao>/`;
+- **Dashboard de carga horária** (`/carga-horaria/`), com os professores em ordem
+  alfabética, carga em HH:MM, nº de aulas e quebra por turma, além das visões Geral,
+  Por área (tipo de curso) e Por curso (`horarios/carga_horaria.py`);
+- **Histórico de versões** publicado sob `/versoes/<versao>/`; o dashboard de carga
+  horária é gerado para cada versão, ficando versionado junto com o quadro;
 - **Páginas de curso** com PPCs (PDFs em `media/attachments/`) e **páginas do
   campus** (administração, calendário acadêmico e setor de saúde).
 
@@ -71,6 +75,7 @@ barras_horarios/
 ├── horarios/            # Aplicação Django (models, importador FET, gerador estático, views, templates)
 │   ├── management/commands/   # import_timetable, render_static_site
 │   ├── fet.py                 # Parsing/normalização do CSV do FET
+│   ├── carga_horaria.py       # Agregação da carga horária (turma/curso/área)
 │   ├── static_site.py         # Geração do site estático (build/)
 │   └── templates/horarios/    # Templates das páginas e da grade
 ├── config/              # Settings/urls do projeto Django
@@ -88,6 +93,12 @@ barras_horarios/
 - `Professor`, `Sala`, `Turma` — entidades com `slug` gerado automaticamente.
 - `Aula` — bloco de aula (com slots contíguos unidos), ligada a `Versao` e às
   entidades por relacionamentos M2M.
+
+> **Carga horária:** cada `Aula` já é um bloco de até 1h. A carga de um professor é a
+> soma de `hora_fim - hora_inicio` dos blocos em que ele aparece (o bloco conta uma
+> única vez, mesmo em co-docência), e o nº de aulas é a contagem desses blocos. A
+> “área” de agrupamento é o `tipo` do curso (`Curso.tipo`), com fallback
+> “Não classificado”. Ver `horarios/carga_horaria.py`.
 
 > O `db.sqlite3` é uma **camada de staging** transiente: é recriado a cada deploy a
 > partir das fontes da verdade (CSVs em `horarios/data/versoes/` + `manifest.json` e
@@ -134,6 +145,10 @@ Para publicar um novo semestre/grade:
 
 Como todo o histórico fica versionado no repo, as versões antigas são preservadas
 entre execuções do GitHub Actions e continuam disponíveis sob `/versoes/<versao>/`.
+
+O dashboard de carga horária segue a mesma lógica: `/carga-horaria/` mostra a versão
+atual e `/versoes/<versao>/carga-horaria/` o quadro de cada versão histórica — assim a
+carga horária fica **versionada junto com o quadro** de cada período.
 
 ## Publicação (GitHub Pages)
 

@@ -1,0 +1,315 @@
+{% extends "horarios/base.html" %}
+{% block title %}Carga horária — {{ site_title }}{% endblock %}
+{% block content %}
+  <section class="cursos-hero">
+    <h1>Carga horária dos professores</h1>
+    <p>
+      Quadro com a carga horária registrada
+      {% if versao %}na versão <strong>{{ versao.versao }}</strong>{% endif %}.
+      A carga soma as <em>horas-aula por turma</em> de cada docente, reunidas por
+      modalidade, curso e geral.
+    </p>
+  </section>
+
+  {% if not geral.professores %}
+    <div class="turma-empty">Nenhuma aula registrada nesta versão.</div>
+  {% else %}
+  <div class="carga-dashboard" id="cargaDashboard">
+    <section class="carga-kpis">
+      <div class="carga-kpi">
+        <span class="carga-kpi-value">{{ geral.professores }}</span>
+        <span class="carga-kpi-label">professores com aulas</span>
+      </div>
+      <div class="carga-kpi">
+        <span class="carga-kpi-value">{{ geral.total_hhmm }}</span>
+        <span class="carga-kpi-label">carga total na versão</span>
+      </div>
+      <div class="carga-kpi">
+        <span class="carga-kpi-value">{{ geral.blocos }}</span>
+        <span class="carga-kpi-label">aulas (blocos)</span>
+      </div>
+      <div class="carga-kpi">
+        <span class="carga-kpi-value">{{ geral.turmas }}</span>
+        <span class="carga-kpi-label">turmas atendidas</span>
+      </div>
+      <div class="carga-kpi">
+        <span class="carga-kpi-value">{{ geral.media_hhmm }}</span>
+        <span class="carga-kpi-label">média por professor</span>
+      </div>
+    </section>
+
+    <div class="carga-toolbar">
+      <input type="search" id="cargaSearch" class="turma-search"
+             placeholder="Buscar por professor…" autocomplete="off">
+      <div class="carga-segmented" id="cargaSegmented" role="tablist" aria-label="Agrupamento">
+        <button type="button" class="mode-btn active" data-view="geral">Geral</button>
+        <button type="button" class="mode-btn" data-view="area">Por modalidade</button>
+        <button type="button" class="mode-btn" data-view="curso">Por curso</button>
+      </div>
+      <span class="turma-count" id="cargaCount"></span>
+    </div>
+
+    <div class="turma-empty hidden" id="cargaEmpty">Nenhum professor encontrado. Tente outro termo.</div>
+
+    <p class="carga-note">
+      <strong>Como ler:</strong> “Carga” é a soma das horas-aula (HH:MM) e “Aulas” a
+      contagem de blocos. Um mesmo bloco pode atender mais de uma turma, por isso o
+      detalhamento por turma pode somar mais que o total do professor. Blocos com
+      mais de um docente (co-docência) contam uma vez para cada professor.
+    </p>
+
+    <!-- ======================= GERAL ======================= -->
+    <section class="carga-view" data-view="geral">
+      <h2 class="carga-view-title">Visão geral — todos os professores (A→Z)</h2>
+      <div class="carga-table-wrap">
+        <table class="carga-table">
+          <thead>
+            <tr>
+              <th class="carga-col-name">Professor(a)</th>
+              <th>Modalidade</th>
+              <th class="carga-col-num">Turmas</th>
+              <th class="carga-col-num">Aulas</th>
+              <th class="carga-col-num">Carga</th>
+              <th class="carga-col-bar">Distribuição</th>
+            </tr>
+          </thead>
+          {% for prof in professores %}
+          <tbody class="carga-prof" data-search-text="{{ prof.nome }}">
+            <tr class="carga-row">
+              <td class="carga-col-name">
+                <button type="button" class="carga-expand" aria-expanded="false"
+                        title="Ver detalhamento por turma">
+                  <span class="carga-caret" aria-hidden="true">▸</span>
+                  <span class="carga-dot" style="background: {{ prof.color }}"></span>
+                  <span class="carga-name">{{ prof.nome }}</span>
+                </button>
+                <a class="carga-link" href="{{ base }}professor/{{ prof.slug }}/">horário →</a>
+              </td>
+              <td>
+                {% for a in prof.areas %}<span class="area-badge area-{{ a.slug }}">{{ a.nome }}</span>{% endfor %}
+              </td>
+              <td class="carga-col-num">{{ prof.turmas|length }}</td>
+              <td class="carga-col-num">{{ prof.blocos }}</td>
+              <td class="carga-col-num carga-total">{{ prof.total_hhmm }}</td>
+              <td class="carga-col-bar">
+                <span class="carga-bar"><span class="carga-bar-fill" style="width: {{ prof.pct }}%; background: {{ prof.color }}"></span></span>
+                <span class="carga-pct">{{ prof.pct }}%</span>
+              </td>
+            </tr>
+            <tr class="carga-detail hidden">
+              <td colspan="6">
+                <div class="carga-detail-grid">
+                  <div>
+                    <h4>Por turma</h4>
+                    <table class="carga-subtable">
+                      <thead><tr><th>Turma</th><th>Curso</th><th class="carga-col-num">Aulas</th><th class="carga-col-num">Carga</th></tr></thead>
+                      <tbody>
+                        {% for t in prof.turmas %}
+                        <tr><td>{{ t.nome }}</td><td>{{ t.curso }}</td><td class="carga-col-num">{{ t.blocos }}</td><td class="carga-col-num">{{ t.total_hhmm }}</td></tr>
+                        {% empty %}
+                        <tr><td colspan="4">Sem turmas vinculadas.</td></tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+                  <div>
+                    <h4>Por curso</h4>
+                    <table class="carga-subtable">
+                      <thead><tr><th>Curso</th><th>Modalidade</th><th class="carga-col-num">Aulas</th><th class="carga-col-num">Carga</th></tr></thead>
+                      <tbody>
+                        {% for c in prof.cursos %}
+                        <tr><td>{{ c.nome }}</td><td>{{ c.area }}</td><td class="carga-col-num">{{ c.blocos }}</td><td class="carga-col-num">{{ c.total_hhmm }}</td></tr>
+                        {% empty %}
+                        <tr><td colspan="4">Sem cursos vinculados.</td></tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+          {% endfor %}
+        </table>
+      </div>
+    </section>
+
+    <!-- ======================= POR Modalidade ======================= -->
+    <section class="carga-view hidden" data-view="area">
+      <h2 class="carga-view-title">Por modalidade </h2>
+      {% for area in areas %}
+      <div class="carga-group">
+        <header class="carga-group-head">
+          <h3><span class="area-badge area-{{ area.slug }}">{{ area.nome }}</span></h3>
+          <span class="carga-group-meta">
+            {{ area.professores_count }} professor(es) · {{ area.total_hhmm }} · {{ area.blocos }} aulas
+          </span>
+        </header>
+        <div class="carga-table-wrap">
+          <table class="carga-table compact">
+            <thead>
+              <tr>
+                <th class="carga-col-name">Professor(a)</th>
+                <th class="carga-col-num">Aulas</th>
+                <th class="carga-col-num">Carga</th>
+                <th class="carga-col-bar">Distribuição na modalidade</th>
+              </tr>
+            </thead>
+            {% for prof in area.professores %}
+            <tbody class="carga-prof" data-search-text="{{ prof.nome }}">
+              <tr>
+                <td class="carga-col-name">
+                  <span class="carga-dot" style="background: {{ prof.color }}"></span>
+                  <a class="carga-name-link" href="{{ base }}professor/{{ prof.slug }}/">{{ prof.nome }}</a>
+                </td>
+                <td class="carga-col-num">{{ prof.blocos }}</td>
+                <td class="carga-col-num carga-total">{{ prof.total_hhmm }}</td>
+                <td class="carga-col-bar">
+                  <span class="carga-bar"><span class="carga-bar-fill" style="width: {{ prof.pct }}%; background: {{ prof.color }}"></span></span>
+                  <span class="carga-pct">{{ prof.pct }}%</span>
+                </td>
+              </tr>
+            </tbody>
+            {% endfor %}
+          </table>
+        </div>
+      </div>
+      {% endfor %}
+    </section>
+
+    <!-- ======================= POR CURSO ======================= -->
+    <section class="carga-view hidden" data-view="curso">
+      <h2 class="carga-view-title">Por curso</h2>
+      {% for curso in cursos %}
+      <div class="carga-group">
+        <header class="carga-group-head">
+          <h3>{{ curso.nome }}</h3>
+          <span class="carga-group-meta">
+            <span class="area-badge area-{{ curso.area_slug }}">{{ curso.area }}</span>
+            {{ curso.professores_count }} professor(es) · {{ curso.total_hhmm }} · {{ curso.blocos }} aulas
+          </span>
+        </header>
+        <div class="carga-table-wrap">
+          <table class="carga-table compact">
+            <thead>
+              <tr>
+                <th class="carga-col-name">Professor(a)</th>
+                <th class="carga-col-num">Aulas</th>
+                <th class="carga-col-num">Carga</th>
+                <th class="carga-col-bar">Distribuição no curso</th>
+              </tr>
+            </thead>
+            {% for prof in curso.professores %}
+            <tbody class="carga-prof" data-search-text="{{ prof.nome }}">
+              <tr>
+                <td class="carga-col-name">
+                  <span class="carga-dot" style="background: {{ prof.color }}"></span>
+                  <a class="carga-name-link" href="{{ base }}professor/{{ prof.slug }}/">{{ prof.nome }}</a>
+                </td>
+                <td class="carga-col-num">{{ prof.blocos }}</td>
+                <td class="carga-col-num carga-total">{{ prof.total_hhmm }}</td>
+                <td class="carga-col-bar">
+                  <span class="carga-bar"><span class="carga-bar-fill" style="width: {{ prof.pct }}%; background: {{ prof.color }}"></span></span>
+                  <span class="carga-pct">{{ prof.pct }}%</span>
+                </td>
+              </tr>
+            </tbody>
+            {% endfor %}
+          </table>
+        </div>
+      </div>
+      {% endfor %}
+    </section>
+  </div>
+  {% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+  (function () {
+    var root = document.getElementById('cargaDashboard');
+    if (!root) return;
+    var input = document.getElementById('cargaSearch');
+    var buttons = Array.prototype.slice.call(document.querySelectorAll('#cargaSegmented .mode-btn'));
+    var views = Array.prototype.slice.call(root.querySelectorAll('.carga-view'));
+    var countEl = document.getElementById('cargaCount');
+    var emptyEl = document.getElementById('cargaEmpty');
+
+    function norm(s) {
+      return (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+    }
+
+    function currentView() {
+      var active = document.querySelector('#cargaSegmented .mode-btn.active');
+      return active ? active.getAttribute('data-view') : 'geral';
+    }
+
+    function activePanel() {
+      return root.querySelector('.carga-view[data-view="' + currentView() + '"]');
+    }
+
+    function apply() {
+      var panel = activePanel();
+      if (!panel) return;
+      var term = norm(input ? input.value : '');
+      var rows = Array.prototype.slice.call(panel.querySelectorAll('tbody.carga-prof[data-search-text]'));
+      var visible = 0;
+      rows.forEach(function (row) {
+        var match = !term || norm(row.getAttribute('data-search-text')).indexOf(term) !== -1;
+        row.classList.toggle('hidden', !match);
+        if (match) visible++;
+      });
+      // Ao filtrar, recolhe os detalhamentos abertos.
+      if (term) {
+        Array.prototype.slice.call(panel.querySelectorAll('.carga-detail')).forEach(function (d) {
+          d.classList.add('hidden');
+        });
+      }
+      Array.prototype.slice.call(root.querySelectorAll('.carga-group')).forEach(function (group) {
+        var restantes = group.querySelectorAll('tbody.carga-prof:not(.hidden)');
+        group.classList.toggle('hidden', restantes.length === 0);
+      });
+      if (countEl) {
+        var unidade = currentView() === 'geral' ? 'professor(es)' : 'linha(s)';
+        countEl.textContent = !term
+          ? rows.length + ' ' + unidade
+          : visible + ' de ' + rows.length + ' ' + unidade;
+      }
+      if (emptyEl) {
+        emptyEl.classList.toggle('hidden', !(rows.length > 0 && visible === 0));
+      }
+    }
+
+    function show(view) {
+      views.forEach(function (v) {
+        v.classList.toggle('hidden', v.getAttribute('data-view') !== view);
+      });
+      buttons.forEach(function (b) {
+        b.classList.toggle('active', b.getAttribute('data-view') === view);
+      });
+      apply();
+    }
+
+    buttons.forEach(function (b) {
+      b.addEventListener('click', function () { show(b.getAttribute('data-view')); });
+    });
+
+    if (input) input.addEventListener('input', apply);
+
+    Array.prototype.slice.call(root.querySelectorAll('.carga-expand')).forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var row = btn.closest('tbody.carga-prof');
+        var detail = row ? row.querySelector('.carga-detail') : null;
+        if (!detail) return;
+        var aberto = btn.getAttribute('aria-expanded') === 'true';
+        btn.setAttribute('aria-expanded', aberto ? 'false' : 'true');
+        detail.classList.toggle('hidden', aberto);
+        var caret = btn.querySelector('.carga-caret');
+        if (caret) caret.textContent = aberto ? '▸' : '▾';
+      });
+    });
+
+    show('geral');
+  })();
+</script>
+{% endblock %}

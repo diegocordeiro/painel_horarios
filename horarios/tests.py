@@ -14,6 +14,7 @@ from .fet import (
     parse_csv_line,
     split_course_and_turma,
 )
+from .carga_horaria import area_of, aula_minutes, build_carga_horaria, fmt_minutes, sort_key
 from .slug import url_slug
 from .static_site import normalize_base_url
 from .models import Aula, Curso, Professor, Sala, Turma, Versao
@@ -186,3 +187,125 @@ class ImportVersoesTests(TestCase):
 
         self.assertEqual(Versao.objects.count(), 2)
         self.assertEqual(Versao.objects.filter(atual=True).count(), 1)
+
+
+class CargaHorariaTests(TestCase):
+    """Valida a agregação da carga horária (horas por turma/curso/área)."""
+
+    @classmethod
+    def setUpTestData(cls):
+        csv_path = Path(__file__).resolve().parent.parent / "horarios.csv"
+        call_command("import_timetable", str(csv_path), atual=True, verbosity=0)
+        call_command("seed_cursos", verbosity=0)
+        cls.versao = Versao.objects.get(atual=True)
+
+    def _dados(self):
+        aulas = Aula.objects.filter(versao=self.versao).prefetch_related(
+            "professores", "turmas__curso"
+        )
+        return build_carga_horaria(list(aulas))
+
+    def test_ordem_alfabetica(self):
+        dados = self._dados()
+        nomes = [p["nome"] for p in dados["professores"]]
+        self.assertGreater(len(nomes), 0)
+        self.assertEqual(nomes, sorted(nomes, key=sort_key))
+        # Ordenação ignora acentos (ex.: "Antônio" deve vir junto de "Antonio").
+        self.assertEqual(sort_key("Antônio"), sort_key("antonio"))
+
+    def test_carga_e_blocos_do_professor(self):
+        dados = self._dados()
+        prof = Professor.objects.get(nome="Diego Cordeiro de Oliveira")
+        aulas = Aula.objects.filter(versao=self.versao, professores=prof)
+        esperado_min = sum(aula_minutes(a) for a in aulas)
+
+        entrada = next(p for p in dados["professores"] if p["nome"] == prof.nome)
+        self.assertEqual(entrada["total_min"], esperado_min)
+        self.assertEqual(entrada["total_hhmm"], fmt_minutes(esperado_min))
+        self.assertEqual(entrada["blocos"], aulas.count())
+        self.assertGreater(entrada["total_min"], 0)
+
+    def test_geral_nao_duplica_co_docencia(self):
+        dados = self._dados()
+        aulas = Aula.objects.filter(versao=self.versao)
+        self.assertEqual(
+            dados["geral"]["total_min"], sum(aula_minutes(a) for a in aulas)
+        )
+        self.assertEqual(dados["geral"]["blocos"], aulas.count())
+        self.assertEqual(dados["geral"]["professores"], len(dados["professores"]))
+
+    def test_agrupa_por_area_e_curso(self):
+        dados = self._dados()
+        areas = {a["nome"] for a in dados["areas"]}
+        self.assertIn("Técnico (PROEJA)", areas)
+        self.assertIn("Licenciatura", areas)
+        for area in dados["areas"]:
+            self.assertGreater(area["total_min"], 0)
+            self.assertGreaterEqual(area["professores_count"], 1)
+
+        cursos = {c["nome"]: c for c in dados["cursos"]}
+        self.assertEqual(cursos["PEDAGOGIA"]["area"], "Licenciatura")
+        self.assertGreater(cursos["PEDAGOGIA"]["total_min"], 0)
+
+    def test_quebra_por_turma(self):
+        dados = self._dados()
+        prof = next(
+            p for p in dados["professores"] if p["nome"] == "Diego Cordeiro de Oliveira"
+        )
+        self.assertGreaterEqual(len(prof["turmas"]), 1)
+        for turma in prof["turmas"]:
+            self.assertGreater(turma["total_min"], 0)
+            self.assertGreater(turma["blocos"], 0)
+
+    def test_curso_sem_tipo_cai_em_nao_classificado(self):
+        curso = Curso.objects.create(nome="CURSO SEM TIPO")
+        self.assertEqual(area_of(curso), "Não classificado")
+
+    def test_percentuais_usam_ponto_decimal(self):
+        """O CSS depende de ponto (ex.: '66.7'), nunca vírgula da localização."""
+        dados = self._dados()
+        for prof in dados["professores"]:
+            self.assertNotIn(",", prof["pct"])
+            for grupo in prof["areas"] + prof["cursos"] + prof["turmas"]:
+                self.assertNotIn(",", grupo["pct"])
+
+
+class CargaHorariaStaticTests(TestCase):
+    """Garante que o dashboard é gerado para a versão atual e para o histórico."""
+
+    def test_render_carga_horaria_versionada(self):
+        csv_fonte = Path(__file__).resolve().parent.parent / "horarios.csv"
+        tmp_dir = Path(tempfile.mkdtemp(prefix="versoes_"))
+        (tmp_dir / "2026.1.v1.csv").write_bytes(csv_fonte.read_bytes())
+        (tmp_dir / "2026.2.v1.csv").write_bytes(csv_fonte.read_bytes())
+        manifest = {
+            "versions": [
+                {"versao": "2026.1.v1", "csv": "2026.1.v1.csv", "inicio": "2026-02-16"},
+                {"versao": "2026.2.v1", "csv": "2026.2.v1.csv", "inicio": "2026-09-14"},
+            ]
+        }
+        manifest_path = tmp_dir / "manifest.json"
+        manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+        call_command(
+            "import_versoes", manifest=str(manifest_path), base_dir=str(tmp_dir), verbosity=0
+        )
+        call_command("seed_cursos", verbosity=0)
+
+        out = Path(tempfile.mkdtemp(prefix="build_"))
+        call_command("render_static_site", output=str(out), base_url="/", verbosity=0)
+
+        atual = out / "carga-horaria" / "index.html"
+        historica = out / "versoes" / "2026.1.v1" / "carga-horaria" / "index.html"
+        self.assertTrue(atual.exists())
+        self.assertTrue(historica.exists())
+
+        html = atual.read_text(encoding="utf-8")
+        self.assertIn("Carga horária dos professores", html)
+        self.assertIn("carga-segmented", html)
+        # A largura das barras nunca pode sair localizada com vírgula.
+        self.assertNotRegex(html, r"width: \d+,\d+%")
+        # Histórico aponta o menu para a subárvore da versão.
+        historic_html = historica.read_text(encoding="utf-8")
+        self.assertIn("/versoes/2026.1.v1/carga-horaria/", historic_html)
+
+

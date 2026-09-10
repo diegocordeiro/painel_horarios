@@ -1105,7 +1105,14 @@ blockquote {
   vertical-align: middle;
 }
 
-.carga-table tbody tr:last-child td {
+/* Remove a borda só na linha de detalhamento (o tr:last-child zerava a borda
+   também nas tabelas compactas, que têm apenas 1 <tr> por <tbody>). */
+.carga-table tbody tr.carga-detail td {
+  border-bottom: 0;
+}
+
+/* Última linha de dados de cada tabela sem borda (evita linha dupla no fim). */
+.carga-table tbody:last-child td {
   border-bottom: 0;
 }
 
@@ -1240,6 +1247,19 @@ blockquote {
 
 .carga-legend-ref { margin-right: .3rem; }
 .carga-legend-count { margin-right: .9rem; }
+
+/* Dados da tabela principal do dashboard centralizados.
+   O :not(.carga-detail) preserva o detalhamento (por turma/curso). */
+.carga-table > thead > tr > th,
+.carga-table > tbody > tr:not(.carga-detail) > td {
+  text-align: center;
+}
+
+/* Exceção: a coluna do professor permanece alinhada à esquerda. */
+.carga-table > thead > tr > th.carga-col-name,
+.carga-table > tbody > tr:not(.carga-detail) > td.carga-col-name {
+  text-align: left;
+}
 
 
 .carga-pct {

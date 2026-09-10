@@ -51,6 +51,22 @@ def aula_minutes(aula) -> int:
     return end - start
 
 
+def faixa_referencia():
+    from django.conf import settings
+    lo = int(getattr(settings, "CARGA_HORARIA_MINIMA_HORAS", 10)) * 60
+    hi = int(getattr(settings, "CARGA_HORARIA_MAXIMA_HORAS", 20)) * 60
+    return lo, hi
+
+
+def _status_info(minutos):
+    lo, hi = faixa_referencia()
+    if minutos < lo:
+        return {"status": "abaixo", "status_texto": "abaixo do mínimo"}
+    if minutos > hi:
+        return {"status": "acima", "status_texto": "acima do máximo"}
+    return {"status": "dentro", "status_texto": "na faixa"}
+
+
 def _pct(minutos: int, referencia: int) -> str:
     """Percentual como texto com ponto decimal (ex.: '66.7').
 
@@ -74,6 +90,7 @@ def _linha_professor(prof: dict, bucket: dict, referencia: int) -> dict:
         "total_hhmm": fmt_minutes(bucket["min"]),
         "blocos": bucket["blocos"],
         "pct": _pct(bucket["min"], referencia),
+        **_status_info(bucket["min"]),
     }
 
 
@@ -164,7 +181,8 @@ def build_carga_horaria(aulas) -> dict:
                 bucket["blocos"] += 1
                 areas[modalidade]["prof_ids"].add(professor.id)
 
-    max_min = max((p["total_min"] for p in professores.values()), default=0)
+    min_ref, max_ref = faixa_referencia()
+    max_min = max_ref
 
     lista_professores = []
     for prof in professores.values():
@@ -177,6 +195,7 @@ def build_carga_horaria(aulas) -> dict:
                     "total_hhmm": fmt_minutes(bucket["min"]),
                     "blocos": bucket["blocos"],
                     "pct": _pct(bucket["min"], max_min),
+                    **_status_info(bucket["min"]),
                 }
                 for modalidade, bucket in prof["_areas"].items()
             ),
@@ -193,6 +212,7 @@ def build_carga_horaria(aulas) -> dict:
                     "total_hhmm": fmt_minutes(bucket["min"]),
                     "blocos": bucket["blocos"],
                     "pct": _pct(bucket["min"], max_min),
+                    **_status_info(bucket["min"]),
                 }
                 for bucket in prof["_cursos"].values()
             ),
@@ -211,6 +231,7 @@ def build_carga_horaria(aulas) -> dict:
                     "total_hhmm": fmt_minutes(bucket["min"]),
                     "blocos": bucket["blocos"],
                     "pct": _pct(bucket["min"], max_min),
+                    **_status_info(bucket["min"]),
                 }
                 for bucket in prof["_turmas"].values()
             ),
@@ -225,6 +246,7 @@ def build_carga_horaria(aulas) -> dict:
                 "total_hhmm": fmt_minutes(prof["total_min"]),
                 "blocos": prof["blocos"],
                 "pct": _pct(prof["total_min"], max_min),
+            **_status_info(prof["total_min"]),
                 "areas": lista_areas,
                 "cursos": lista_cursos,
                 "turmas": lista_turmas,
@@ -245,6 +267,7 @@ def build_carga_horaria(aulas) -> dict:
             ),
             "max_min": max_min,
         },
+        "faixa": {"min_min": min_ref, "max_min": max_ref, "min_hhmm": fmt_minutes(min_ref), "max_hhmm": fmt_minutes(max_ref), "min_pct": _pct(min_ref, max_ref), "abaixo": sum(1 for x in lista_professores if x["status"] == "abaixo"), "dentro": sum(1 for x in lista_professores if x["status"] == "dentro"), "acima": sum(1 for x in lista_professores if x["status"] == "acima")},
         "professores": lista_professores,
         "areas": _agrupa_areas(areas, professores),
         "cursos": _agrupa_cursos(cursos, professores),
@@ -253,7 +276,7 @@ def build_carga_horaria(aulas) -> dict:
 
 def _agrupa_areas(areas: dict, professores: dict) -> list[dict]:
     """Consolida os grupos por área (tipo de curso), com seus professores."""
-    referencia = max((info["min"] for info in areas.values()), default=0)
+    referencia = faixa_referencia()[1]
     saida = []
     for nome, info in areas.items():
         linhas = [
@@ -279,7 +302,7 @@ def _agrupa_areas(areas: dict, professores: dict) -> list[dict]:
 
 def _agrupa_cursos(cursos: dict, professores: dict) -> list[dict]:
     """Consolida os grupos por curso, com seus professores."""
-    referencia = max((info["min"] for info in cursos.values()), default=0)
+    referencia = faixa_referencia()[1]
     saida = []
     for curso_id, info in cursos.items():
         curso = info["obj"]

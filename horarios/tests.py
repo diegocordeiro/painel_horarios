@@ -14,7 +14,7 @@ from .fet import (
     parse_csv_line,
     split_course_and_turma,
 )
-from .carga_horaria import area_of, aula_minutes, build_carga_horaria, fmt_minutes, sort_key
+from .carga_horaria import (aula_minutes, build_carga_horaria, faixa_referencia, fmt_minutes, modalidade_of, sort_key)
 from .slug import url_slug
 from .static_site import normalize_base_url
 from .models import Aula, Curso, Professor, Sala, Turma, Versao
@@ -259,7 +259,7 @@ class CargaHorariaTests(TestCase):
 
     def test_curso_sem_tipo_cai_em_nao_classificado(self):
         curso = Curso.objects.create(nome="CURSO SEM TIPO")
-        self.assertEqual(area_of(curso), "Não classificado")
+        self.assertEqual(modalidade_of(curso), "Não classificado")
 
     def test_percentuais_usam_ponto_decimal(self):
         """O CSS depende de ponto (ex.: '66.7'), nunca vírgula da localização."""
@@ -307,5 +307,38 @@ class CargaHorariaStaticTests(TestCase):
         # Histórico aponta o menu para a subárvore da versão.
         historic_html = historica.read_text(encoding="utf-8")
         self.assertIn("/versoes/2026.1.v1/carga-horaria/", historic_html)
+
+
+class DistribuicaoCargaTests(TestCase):
+    """Valida a régua fixa da coluna Distribuição (mín. 10h / máx. 20h)."""
+
+    def test_faixa_padrao(self):
+        self.assertEqual(faixa_referencia(), (600, 1200))
+
+    def test_faixa_configuravel(self):
+        with self.settings(CARGA_HORARIA_MINIMA_HORAS=8, CARGA_HORARIA_MAXIMA_HORAS=16):
+            self.assertEqual(faixa_referencia(), (480, 960))
+
+    def test_pct_e_status_pela_faixa(self):
+        csv_path = Path(__file__).resolve().parent.parent / "horarios.csv"
+        call_command("import_timetable", str(csv_path), atual=True, verbosity=0)
+        call_command("seed_cursos", verbosity=0)
+        versao = Versao.objects.get(atual=True)
+        aulas = list(Aula.objects.filter(versao=versao).prefetch_related("professores", "turmas__curso"))
+        dados = build_carga_horaria(aulas)
+        self.assertEqual(dados["faixa"]["min_hhmm"], "10:00")
+        self.assertEqual(dados["faixa"]["max_hhmm"], "20:00")
+        self.assertEqual(dados["faixa"]["min_pct"], "50")
+        total = dados["faixa"]["abaixo"] + dados["faixa"]["dentro"] + dados["faixa"]["acima"]
+        self.assertEqual(total, len(dados["professores"]))
+        for prof in dados["professores"]:
+            esperado = round(prof["total_min"] * 100 / 1200, 1)
+            self.assertAlmostEqual(float(prof["pct"]), esperado, places=1)
+            if prof["total_min"] < 600:
+                self.assertEqual(prof["status"], "abaixo")
+            elif prof["total_min"] > 1200:
+                self.assertEqual(prof["status"], "acima")
+            else:
+                self.assertEqual(prof["status"], "dentro")
 
 

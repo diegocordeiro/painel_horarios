@@ -142,3 +142,8 @@ SITE_URL = os.environ.get("SITE_URL", "").rstrip("/")
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Faixa de referência da carga horária docente (coluna "Distribuição").
+# A barra é medida contra a MÁXIMA e o MÍNIMO é marcado na régua.
+CARGA_HORARIA_MINIMA_HORAS = int(os.environ.get("CARGA_HORARIA_MINIMA_HORAS", "10"))
+CARGA_HORARIA_MAXIMA_HORAS = int(os.environ.get("CARGA_HORARIA_MAXIMA_HORAS", "20"))

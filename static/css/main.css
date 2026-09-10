@@ -1181,6 +1181,7 @@ blockquote {
 }
 
 .carga-bar {
+  position: relative;
   display: inline-block;
   vertical-align: middle;
   width: calc(100% - 52px);
@@ -1194,7 +1195,51 @@ blockquote {
   display: block;
   height: 100%;
   border-radius: 999px;
+  background: var(--primary);
 }
+
+.carga-bar-marker {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--text);
+  opacity: .5;
+}
+
+.carga-bar-abaixo .carga-bar-fill { background: #d97706; }
+.carga-bar-dentro .carga-bar-fill { background: #16a34a; }
+.carga-bar-acima .carga-bar-fill { background: #dc2626; }
+
+.carga-status {
+  display: block;
+  margin-top: .25rem;
+  font-size: .72rem;
+  font-weight: 600;
+}
+
+.carga-status-abaixo, .carga-pct-abaixo { color: #b45309; }
+.carga-status-dentro, .carga-pct-dentro { color: #15803d; }
+.carga-status-acima, .carga-pct-acima { color: #b91c1c; }
+
+.carga-legend {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  flex-wrap: wrap;
+  margin: -.4rem 0 1.1rem;
+  font-size: .8rem;
+  color: var(--muted);
+}
+
+.carga-legend .carga-status {
+  display: inline-block;
+  margin: 0;
+}
+
+.carga-legend-ref { margin-right: .3rem; }
+.carga-legend-count { margin-right: .9rem; }
 
 
 .carga-pct {
@@ -1328,6 +1373,10 @@ blockquote {
 
   .carga-bar {
     width: 100%;
+  }
+
+  .carga-status {
+    font-size: .7rem;
   }
 }
 

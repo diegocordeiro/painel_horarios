@@ -36,6 +36,10 @@
         <span class="carga-kpi-value">{{ geral.media_hhmm }}</span>
         <span class="carga-kpi-label">média por professor</span>
       </div>
+      <div class="carga-kpi carga-kpi-faixa">
+        <span class="carga-kpi-value">{{ faixa.min_hhmm }}/{{ faixa.max_hhmm }}</span>
+        <span class="carga-kpi-label">faixa de referência</span>
+      </div>
     </section>
 
     <div class="carga-toolbar">
@@ -58,6 +62,16 @@
       mais de um docente (co-docência) contam uma vez para cada professor.
     </p>
 
+    <div class="carga-legend">
+      <span class="carga-legend-ref">Regra de referência: <strong>{{ faixa.min_hhmm }}</strong> (mínimo) a <strong>{{ faixa.max_hhmm }}</strong> (máximo).</span>
+      <span class="carga-status carga-status-abaixo">Abaixo do mínimo</span>
+      <span class="carga-legend-count">{{ faixa.abaixo }} docente(s)</span>
+      <span class="carga-status carga-status-dentro">Na faixa</span>
+      <span class="carga-legend-count">{{ faixa.dentro }} docente(s)</span>
+      <span class="carga-status carga-status-acima">Acima do máximo</span>
+      <span class="carga-legend-count">{{ faixa.acima }} docente(s)</span>
+    </div>
+
     <!-- ======================= GERAL ======================= -->
     <section class="carga-view" data-view="geral">
       <h2 class="carga-view-title">Visão geral — todos os professores (A→Z)</h2>
@@ -69,7 +83,7 @@
               <th>Modalidade</th>
               <th class="carga-col-num">Turmas</th>
               <th class="carga-col-num">Total Carga Horária</th>
-              <th class="carga-col-bar">Distribuição</th>
+              <th class="carga-col-bar">Distribuição (ref. {{ faixa.min_hhmm }}/{{ faixa.max_hhmm }})</th>
             </tr>
           </thead>
           {% for prof in professores %}
@@ -90,8 +104,8 @@
               <td class="carga-col-num">{{ prof.turmas|length }}</td>
               <td class="carga-col-num carga-total">{{ prof.total_hhmm }}</td>
               <td class="carga-col-bar">
-                <span class="carga-bar"><span class="carga-bar-fill" style="width: {{ prof.pct }}%; background: {{ prof.color }}"></span></span>
-                <span class="carga-pct">{{ prof.pct }}%</span>
+                <span class="carga-bar carga-bar-{{ prof.status }}" title="Mínimo {{ faixa.min_hhmm }} / Máximo {{ faixa.max_hhmm }}"><span class="carga-bar-fill" style="width: {{ prof.pct }}%"></span><span class="carga-bar-marker" style="left: {{ faixa.min_pct }}%"></span></span>
+                <span class="carga-pct carga-pct-{{ prof.status }}">{{ prof.pct }}%</span><span class="carga-status carga-status-{{ prof.status }}">{{ prof.status_texto }}</span>
               </td>
             </tr>
             <tr class="carga-detail hidden">
@@ -161,8 +175,8 @@
                 </td>
                 <td class="carga-col-num carga-total">{{ prof.total_hhmm }}</td>
                 <td class="carga-col-bar">
-                  <span class="carga-bar"><span class="carga-bar-fill" style="width: {{ prof.pct }}%; background: {{ prof.color }}"></span></span>
-                  <span class="carga-pct">{{ prof.pct }}%</span>
+                  <span class="carga-bar carga-bar-{{ prof.status }}" title="Mínimo {{ faixa.min_hhmm }} / Máximo {{ faixa.max_hhmm }}"><span class="carga-bar-fill" style="width: {{ prof.pct }}%"></span><span class="carga-bar-marker" style="left: {{ faixa.min_pct }}%"></span></span>
+                  <span class="carga-pct carga-pct-{{ prof.status }}">{{ prof.pct }}%</span><span class="carga-status carga-status-{{ prof.status }}">{{ prof.status_texto }}</span>
                 </td>
               </tr>
             </tbody>
@@ -203,8 +217,8 @@
                 </td>
                 <td class="carga-col-num carga-total">{{ prof.total_hhmm }}</td>
                 <td class="carga-col-bar">
-                  <span class="carga-bar"><span class="carga-bar-fill" style="width: {{ prof.pct }}%; background: {{ prof.color }}"></span></span>
-                  <span class="carga-pct">{{ prof.pct }}%</span>
+                  <span class="carga-bar carga-bar-{{ prof.status }}" title="Mínimo {{ faixa.min_hhmm }} / Máximo {{ faixa.max_hhmm }}"><span class="carga-bar-fill" style="width: {{ prof.pct }}%"></span><span class="carga-bar-marker" style="left: {{ faixa.min_pct }}%"></span></span>
+                  <span class="carga-pct carga-pct-{{ prof.status }}">{{ prof.pct }}%</span><span class="carga-status carga-status-{{ prof.status }}">{{ prof.status_texto }}</span>
                 </td>
               </tr>
             </tbody>

@@ -103,7 +103,7 @@
                   <span class="carga-dot" style="background: {{ prof.color }}"></span>
                   <span class="carga-name">{{ prof.nome }}</span>
                 </button>
-                <a class="carga-link" href="{{ base }}professor/{{ prof.slug }}/">horário →</a>
+                <div class="carga-btn-row"><a class="carga-btn" href="{{ base }}professor/{{ prof.slug }}/">Ver horário</a></div>
               </td>
               <td>
                 {% for a in prof.areas %}<span class="area-badge area-{{ a.slug }}">{{ a.nome }}</span>{% endfor %}

@@ -1175,16 +1175,26 @@ blockquote {
   text-decoration: underline;
 }
 
-.carga-link {
-  margin-left: .6rem;
-  font-size: .78rem;
-  color: var(--muted);
+.carga-btn-row {
+  margin-top: .4rem;
+}
+
+.carga-btn {
+  display: inline-block;
+  padding: .22rem .7rem;
+  font-size: .75rem;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--primary);
   text-decoration: none;
   white-space: nowrap;
 }
 
-.carga-link:hover {
-  color: var(--primary);
+.carga-btn:hover {
+  border-color: var(--primary);
+  background: var(--primary-soft);
 }
 
 .carga-bar {
@@ -1444,7 +1454,7 @@ blockquote {
   .timetable-toolbar,
   .carga-toolbar,
   .no-print,
-  .carga-link,
+  .carga-btn-row,
   .carga-caret {
     display: none !important;
   }

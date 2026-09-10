@@ -68,8 +68,7 @@
               <th class="carga-col-name">Professor(a)</th>
               <th>Modalidade</th>
               <th class="carga-col-num">Turmas</th>
-              <th class="carga-col-num">Aulas</th>
-              <th class="carga-col-num">Carga</th>
+              <th class="carga-col-num">Total Carga Horária</th>
               <th class="carga-col-bar">Distribuição</th>
             </tr>
           </thead>
@@ -89,7 +88,6 @@
                 {% for a in prof.areas %}<span class="area-badge area-{{ a.slug }}">{{ a.nome }}</span>{% endfor %}
               </td>
               <td class="carga-col-num">{{ prof.turmas|length }}</td>
-              <td class="carga-col-num">{{ prof.blocos }}</td>
               <td class="carga-col-num carga-total">{{ prof.total_hhmm }}</td>
               <td class="carga-col-bar">
                 <span class="carga-bar"><span class="carga-bar-fill" style="width: {{ prof.pct }}%; background: {{ prof.color }}"></span></span>
@@ -102,10 +100,10 @@
                   <div>
                     <h4>Por turma</h4>
                     <table class="carga-subtable">
-                      <thead><tr><th>Turma</th><th>Curso</th><th class="carga-col-num">Aulas</th><th class="carga-col-num">Carga</th></tr></thead>
+                      <thead><tr><th>Turma</th><th>Curso</th><th class="carga-col-num">Aulas</th></tr></thead>
                       <tbody>
                         {% for t in prof.turmas %}
-                        <tr><td>{{ t.nome }}</td><td>{{ t.curso }}</td><td class="carga-col-num">{{ t.blocos }}</td><td class="carga-col-num">{{ t.total_hhmm }}</td></tr>
+                        <tr><td>{{ t.nome }}</td><td>{{ t.curso }}</td><td class="carga-col-num">{{ t.blocos }}</td></tr>
                         {% empty %}
                         <tr><td colspan="4">Sem turmas vinculadas.</td></tr>
                         {% endfor %}
@@ -115,10 +113,10 @@
                   <div>
                     <h4>Por curso</h4>
                     <table class="carga-subtable">
-                      <thead><tr><th>Curso</th><th>Modalidade</th><th class="carga-col-num">Aulas</th><th class="carga-col-num">Carga</th></tr></thead>
+                      <thead><tr><th>Curso</th><th>Modalidade</th><th class="carga-col-num">Aulas</th></tr></thead>
                       <tbody>
                         {% for c in prof.cursos %}
-                        <tr><td>{{ c.nome }}</td><td>{{ c.area }}</td><td class="carga-col-num">{{ c.blocos }}</td><td class="carga-col-num">{{ c.total_hhmm }}</td></tr>
+                        <tr><td>{{ c.nome }}</td><td>{{ c.area }}</td><td class="carga-col-num">{{ c.blocos }}</tr>
                         {% empty %}
                         <tr><td colspan="4">Sem cursos vinculados.</td></tr>
                         {% endfor %}
@@ -150,8 +148,7 @@
             <thead>
               <tr>
                 <th class="carga-col-name">Professor(a)</th>
-                <th class="carga-col-num">Aulas</th>
-                <th class="carga-col-num">Carga</th>
+              <th class="carga-col-num">Total Carga Horária</th>
                 <th class="carga-col-bar">Distribuição na modalidade</th>
               </tr>
             </thead>
@@ -162,7 +159,6 @@
                   <span class="carga-dot" style="background: {{ prof.color }}"></span>
                   <a class="carga-name-link" href="{{ base }}professor/{{ prof.slug }}/">{{ prof.nome }}</a>
                 </td>
-                <td class="carga-col-num">{{ prof.blocos }}</td>
                 <td class="carga-col-num carga-total">{{ prof.total_hhmm }}</td>
                 <td class="carga-col-bar">
                   <span class="carga-bar"><span class="carga-bar-fill" style="width: {{ prof.pct }}%; background: {{ prof.color }}"></span></span>
@@ -194,8 +190,7 @@
             <thead>
               <tr>
                 <th class="carga-col-name">Professor(a)</th>
-                <th class="carga-col-num">Aulas</th>
-                <th class="carga-col-num">Carga</th>
+              <th class="carga-col-num">Total Carga Horária</th>
                 <th class="carga-col-bar">Distribuição no curso</th>
               </tr>
             </thead>
@@ -206,7 +201,6 @@
                   <span class="carga-dot" style="background: {{ prof.color }}"></span>
                   <a class="carga-name-link" href="{{ base }}professor/{{ prof.slug }}/">{{ prof.nome }}</a>
                 </td>
-                <td class="carga-col-num">{{ prof.blocos }}</td>
                 <td class="carga-col-num carga-total">{{ prof.total_hhmm }}</td>
                 <td class="carga-col-bar">
                   <span class="carga-bar"><span class="carga-bar-fill" style="width: {{ prof.pct }}%; background: {{ prof.color }}"></span></span>

@@ -5,7 +5,7 @@
     <a href="{{ base }}professor/">Professores</a> / <span>{{ professor.nome }}</span>
   </nav>
 
-  <section class="curso-detail-hero">
+  <section class="curso-detail-hero{% if pdf_export %} no-print{% endif %}">
     <span class="curso-avatar large">{{ professor.nome|slice:":1" }}</span>
     <div>
       <span class="curso-badge">Professor(a)</span>

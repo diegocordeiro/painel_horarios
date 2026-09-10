@@ -32,6 +32,56 @@
     }
   }
 
+  // Exportar para PDF — usa a impressão do próprio navegador ("Salvar como PDF").
+  // Nenhuma biblioteca e nenhuma requisição: por isso funciona no site estático
+  // gerado no build (GitHub Pages), inclusive offline.
+  var applyGridMode = null; // definido mais abaixo quando a página tem grade
+  var currentGridMode = 'superCondensed';
+  var printState = null;
+
+  function restorePrintState() {
+    if (!printState) return;
+    if (printState.mode && applyGridMode) applyGridMode(printState.mode);
+    document.title = printState.title;
+    printState = null;
+  }
+
+  // Carimba a data/hora da geração no cabeçalho impresso (`_print_head.html`).
+  function stampPrintDate() {
+    var stamp = document.getElementById('printDate');
+    if (!stamp) return;
+    try { stamp.textContent = 'Gerado em ' + new Date().toLocaleString('pt-BR'); } catch (e) { stamp.textContent = ''; }
+  }
+
+  var printButtons = document.querySelectorAll('[data-print-pdf]');
+  Array.prototype.forEach.call(printButtons, function (btn) {
+    btn.addEventListener('click', function () {
+      stampPrintDate();
+
+      // A grade precisa sair completa no PDF: o modo "super condensado" esconde
+      // linhas e colunas com display:none inline.
+      var mode = btn.getAttribute('data-print-mode');
+      printState = {
+        mode: (mode && applyGridMode) ? currentGridMode : null,
+        title: document.title
+      };
+      if (mode && applyGridMode) applyGridMode(mode);
+
+      // O título vira o nome sugerido do arquivo ao salvar como PDF.
+      var pdfTitle = btn.getAttribute('data-print-title');
+      if (pdfTitle) document.title = pdfTitle;
+
+      window.print();
+      // Fallback para navegadores que não disparam `afterprint`.
+      window.setTimeout(restorePrintState, 1200);
+    });
+  });
+  window.addEventListener('afterprint', function () {
+    window.setTimeout(restorePrintState, 0);
+  });
+  // Impressão pelo atalho do navegador (Ctrl+P) também ganha a data no cabeçalho.
+  window.addEventListener('beforeprint', stampPrintDate);
+
   // Modos de visualização da grade
   var table = document.getElementById('timetable');
   if (!table) return;
@@ -41,6 +91,7 @@
   var activeDays = new Set((table.dataset.activeDays || '').split('|').filter(Boolean));
 
   function apply(mode) {
+    currentGridMode = mode;
     rows.forEach(function (row, i) {
       var hasClass = row.classList.contains('row-active');
       if (mode === 'completed') row.style.display = '';
@@ -52,6 +103,7 @@
       el.style.display = (mode === 'superCondensed' && !activeDays.has(day)) ? 'none' : '';
     });
   }
+  applyGridMode = apply;
 
   var toolbar = document.querySelector('.timetable-toolbar') || table.previousElementSibling;
   var modeBtns = (toolbar && toolbar.querySelectorAll) ? toolbar.querySelectorAll('.mode-btn') : [];

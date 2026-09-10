@@ -3,7 +3,7 @@ from django.shortcuts import render, get_object_or_404
 
 from .models import Aula, Curso, Professor, Sala, Turma, Versao
 from .carga_horaria import build_carga_horaria
-from .static_site import build_grid, entity_color
+from .static_site import build_grid, entity_color, print_ctx
 
 
 def _versao():
@@ -48,10 +48,18 @@ def turma_detail(request, curso_slug, turma_slug):
     turma = get_object_or_404(Turma, slug=turma_slug, curso=curso)
     versao = _versao()
     aulas = [a for a in _aulas_filter(versao) if a.turmas.filter(id=turma.id).exists()]
+    meta_curso = f"{curso.nome} — {curso.tipo}" if curso.tipo else curso.nome
     return render(
         request,
         "horarios/turma_detail.html",
-        {"curso": curso, "turma": turma, "versao": versao, "grid": build_grid(aulas), "kind": "turma"},
+        {
+            "curso": curso,
+            "turma": turma,
+            "versao": versao,
+            "grid": build_grid(aulas),
+            "kind": "turma",
+            **print_ctx(turma.rotulo or turma.nome_completo, meta_curso),
+        },
     )
 
 
@@ -70,7 +78,14 @@ def professor_detail(request, slug):
     return render(
         request,
         "horarios/professor_detail.html",
-        {"professor": prof, "versao": versao, "grid": build_grid(aulas), "kind": "professor", "color": entity_color(prof.nome)},
+        {
+            "professor": prof,
+            "versao": versao,
+            "grid": build_grid(aulas),
+            "kind": "professor",
+            "color": entity_color(prof.nome),
+            **print_ctx(prof.nome, "Professor(a)"),
+        },
     )
 
 
@@ -86,10 +101,18 @@ def sala_detail(request, slug):
     sala = get_object_or_404(Sala, slug=slug)
     versao = _versao()
     aulas = _aulas_filter(versao, sala=sala)
+    meta_sala = f"Sala — {sala.predio}" if sala.predio else "Sala"
     return render(
         request,
         "horarios/sala_detail.html",
-        {"sala": sala, "versao": versao, "grid": build_grid(aulas), "kind": "sala", "color": entity_color(sala.nome)},
+        {
+            "sala": sala,
+            "versao": versao,
+            "grid": build_grid(aulas),
+            "kind": "sala",
+            "color": entity_color(sala.nome),
+            **print_ctx(sala.nome, meta_sala),
+        },
     )
 
 
@@ -103,6 +126,7 @@ def carga_horaria(request):
     )
     context = build_carga_horaria(list(aulas))
     context["versao"] = versao
+    context.update(print_ctx("Carga horária dos professores"))
     return render(request, "horarios/carga_horaria.html", context)
 
 

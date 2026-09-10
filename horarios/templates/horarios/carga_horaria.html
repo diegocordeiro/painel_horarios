@@ -1,7 +1,8 @@
 {% extends "horarios/base.html" %}
 {% block title %}Carga horária — {{ site_title }}{% endblock %}
 {% block content %}
-  <section class="cursos-hero">
+  {% if pdf_export %}{% include "horarios/_print_head.html" %}{% endif %}
+  <section class="cursos-hero{% if pdf_export %} no-print{% endif %}">
     <h1>Carga horária dos professores</h1>
     <p>
       Quadro com a carga horária registrada
@@ -50,6 +51,12 @@
         <button type="button" class="mode-btn" data-view="area">Por modalidade</button>
         <button type="button" class="mode-btn" data-view="curso">Por curso</button>
       </div>
+      {% if pdf_export %}
+      <button class="mode-btn pdf-btn" type="button"
+              data-print-pdf
+              data-print-title="{{ print_title|default:site_title }}{% if versao %} — {{ versao.versao }}{% endif %}"
+              title="Abre a impressão do navegador: escolha “Salvar como PDF”">Exportar PDF</button>
+      {% endif %}
       <span class="turma-count" id="cargaCount"></span>
     </div>
 

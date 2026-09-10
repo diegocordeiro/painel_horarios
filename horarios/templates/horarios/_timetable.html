@@ -1,4 +1,5 @@
 {% load filters %}
+{% if pdf_export %}{% include "horarios/_print_head.html" %}{% endif %}
 {% if grid.subject_legend %}
 <style>
   {% for c in grid.subject_legend %}
@@ -11,8 +12,15 @@
   <button class="mode-btn" data-mode="completed" type="button">Completo</button>
   <button class="mode-btn" data-mode="condensed" type="button">Condensado</button>
   <button class="mode-btn active" data-mode="superCondensed" type="button">Super condensado</button>
+  {% if pdf_export %}
+  <button class="mode-btn pdf-btn" type="button"
+          data-print-pdf
+          data-print-mode="completed"
+          data-print-title="Quadro de horários — {{ print_title|default:site_title }}"
+          title="Abre a impressão do navegador: escolha “Salvar como PDF”">Exportar PDF</button>
+  {% endif %}
 </div>
-<table class="timetable"
+<table class="timetable kind-{{ kind }}"
        id="timetable"
        data-first="{{ grid.first_row }}"
        data-last="{{ grid.last_row }}"

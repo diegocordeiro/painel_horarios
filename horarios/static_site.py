@@ -193,6 +193,21 @@ def entity_color(name: str) -> str:
     return f"hsl({hue}, {sat}%, {light}%)"
 
 
+def print_ctx(title, meta=None) -> dict:
+    """Contexto da exportação para PDF (impressão 100% no navegador).
+
+    Marca a página como exportável (``pdf_export``) e define o título/subtítulo
+    usados no cabeçalho impresso (``_print_head.html``) e no nome sugerido do
+    arquivo ao "Salvar como PDF". Não envolve nenhuma dependência extra: quem
+    gera o PDF é o próprio navegador, via ``window.print()``.
+    """
+    return {
+        "pdf_export": True,
+        "print_title": title,
+        "print_meta": meta,
+    }
+
+
 class StaticSite:
     """Ponto de entrada para gerar todas as páginas estáticas."""
 
@@ -273,6 +288,7 @@ class StaticSite:
         aulas_versao = self._aulas_versao(versao.id)
         for curso in cursos:
             aulas_curso = [a for a in aulas_versao if any(t.curso_id == curso.id for t in a.turmas.all())]
+            meta_curso = f"{curso.nome} — {curso.tipo}" if curso.tipo else curso.nome
             for turma in curso.turmas.all():
                 aulas = [a for a in aulas_curso if any(t.id == turma.id for t in a.turmas.all())]
                 ctx = self._ctx(
@@ -283,6 +299,7 @@ class StaticSite:
                     grid=build_grid(aulas),
                     kind="turma",
                     active="turmas",
+                    **print_ctx(turma.rotulo or turma.nome_completo, meta_curso),
                 )
                 self._write(
                     self._prefix_path(prefix, f"turma/{curso.slug}/{turma.slug}/index.html"),
@@ -319,10 +336,20 @@ class StaticSite:
         )
         for prof in profs:
             aulas = [a for a in aulas_versao if a.professores.filter(id=prof.id).exists()]
+            ctx = self._ctx(
+                prefix=prefix,
+                versao=versao,
+                professor=prof,
+                grid=build_grid(aulas),
+                kind="professor",
+                color=entity_color(prof.nome),
+                active="professores",
+                **print_ctx(prof.nome, "Professor(a)"),
+            )
             self._write(
                 self._prefix_path(prefix, f"professor/{prof.slug}/index.html"),
                 "horarios/professor_detail.html",
-                self._ctx(prefix=prefix, versao=versao, professor=prof, grid=build_grid(aulas), kind="professor", color=entity_color(prof.nome), active="professores"),
+                ctx,
             )
 
     def render_salas(self, versao, prefix=""):
@@ -348,10 +375,21 @@ class StaticSite:
         )
         for sala in Sala.objects.order_by("nome"):
             aulas = [a for a in aulas_versao if a.sala_id == sala.id]
+            meta_sala = f"Sala — {sala.predio}" if sala.predio else "Sala"
+            ctx = self._ctx(
+                prefix=prefix,
+                versao=versao,
+                sala=sala,
+                grid=build_grid(aulas),
+                kind="sala",
+                color=entity_color(sala.nome),
+                active="salas",
+                **print_ctx(sala.nome, meta_sala),
+            )
             self._write(
                 self._prefix_path(prefix, f"sala/{sala.slug}/index.html"),
                 "horarios/sala_detail.html",
-                self._ctx(prefix=prefix, versao=versao, sala=sala, grid=build_grid(aulas), kind="sala", color=entity_color(sala.nome), active="salas"),
+                ctx,
             )
 
     def render_carga_horaria(self, versao, prefix=""):
@@ -362,6 +400,7 @@ class StaticSite:
         com cada carga de horário.
         """
         dados = build_carga_horaria(self._aulas_versao(versao.id))
+        dados.update(print_ctx("Carga horária dos professores"))
         self._write(
             self._prefix_path(prefix, "carga-horaria/index.html"),
             "horarios/carga_horaria.html",

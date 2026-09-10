@@ -342,3 +342,82 @@ class DistribuicaoCargaTests(TestCase):
                 self.assertEqual(prof["status"], "dentro")
 
 
+
+
+class PdfExportTests(TestCase):
+    """Valida a exportação para PDF (impressão do navegador) nas páginas com grade."""
+
+    @classmethod
+    def setUpTestData(cls):
+        csv_fonte = Path(__file__).resolve().parent.parent / "horarios.csv"
+        tmp_dir = Path(tempfile.mkdtemp(prefix="versoes_"))
+        (tmp_dir / "2026.1.v1.csv").write_bytes(csv_fonte.read_bytes())
+        (tmp_dir / "2026.2.v1.csv").write_bytes(csv_fonte.read_bytes())
+        manifest = {
+            "versions": [
+                {"versao": "2026.1.v1", "csv": "2026.1.v1.csv", "inicio": "2026-02-16"},
+                {"versao": "2026.2.v1", "csv": "2026.2.v1.csv", "inicio": "2026-09-14"},
+            ]
+        }
+        manifest_path = tmp_dir / "manifest.json"
+        manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+        call_command(
+            "import_versoes", manifest=str(manifest_path), base_dir=str(tmp_dir), verbosity=0
+        )
+        call_command("seed_cursos", verbosity=0)
+
+        cls.out = Path(tempfile.mkdtemp(prefix="build_"))
+        call_command("render_static_site", output=str(cls.out), base_url="/", verbosity=0)
+
+    def _html(self, *parts):
+        return self.out.joinpath(*parts).read_text(encoding="utf-8")
+
+    def _turma(self):
+        return Turma.objects.order_by("id").first()
+
+    def test_grade_por_turma_tem_botao_de_pdf(self):
+        turma = self._turma()
+        html = self._html("turma", turma.curso.slug, turma.slug, "index.html")
+        self.assertIn("data-print-pdf", html)
+        self.assertIn("Exportar PDF", html)
+        self.assertIn("print-head", html)
+        # O cabeçalho impresso identifica a turma.
+        self.assertIn(turma.rotulo or turma.nome_completo, html)
+        # Ao imprimir, a grade é forçada no modo completo.
+        self.assertIn('data-print-mode="completed"', html)
+        # A dimensão redundante (a própria turma em cada aula) é omitida no PDF.
+        self.assertIn("timetable kind-turma", html)
+
+    def test_grade_por_professor_e_sala_tem_botao_de_pdf(self):
+        prof = Professor.objects.order_by("nome").first()
+        html = self._html("professor", prof.slug, "index.html")
+        self.assertIn("data-print-pdf", html)
+        self.assertIn(prof.nome, html)
+
+        sala = Sala.objects.order_by("nome").first()
+        html = self._html("sala", sala.slug, "index.html")
+        self.assertIn("data-print-pdf", html)
+        self.assertIn(sala.nome, html)
+
+    def test_carga_horaria_tem_botao_de_pdf(self):
+        html = self._html("carga-horaria", "index.html")
+        self.assertIn("data-print-pdf", html)
+        self.assertIn("print-head", html)
+
+    def test_versao_historica_tambem_exporta(self):
+        turma = self._turma()
+        html = self._html(
+            "versoes", "2026.1.v1", "turma", turma.curso.slug, turma.slug, "index.html"
+        )
+        self.assertIn("data-print-pdf", html)
+        self.assertIn("Versão 2026.1.v1", html)
+
+    def test_assets_de_impressao_no_build(self):
+        """O CSS/JS publicados no build precisam conter a lógica de impressão."""
+        css = self._html("static", "css", "main.css")
+        js = self._html("static", "js", "main.js")
+        self.assertIn("@media print", css)
+        self.assertIn(".print-head", css)
+        self.assertIn("data-print-pdf", js)
+        self.assertIn("window.print()", js)
+

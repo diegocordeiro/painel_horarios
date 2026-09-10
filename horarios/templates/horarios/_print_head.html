@@ -1,0 +1,17 @@
+{% comment %}
+Cabeçalho exibido apenas na impressão (exportação para PDF).
+
+Fica oculto na tela (`.print-head` em static/css/main.css) e aparece no topo das
+páginas com grade e do dashboard de carga horária quando o usuário usa o botão
+"Exportar PDF". Recebe do contexto: print_title, print_meta e versao.
+{% endcomment %}
+<div class="print-head" aria-hidden="true">
+  <div class="print-head-main">
+    <strong>{{ print_title|default:site_title }}</strong>
+    {% if print_meta %}<span>{{ print_meta }}</span>{% endif %}
+  </div>
+  <div class="print-head-meta">
+    {% if versao %}<span>Versão {{ versao.versao }}</span>{% endif %}
+    <span id="printDate"></span>
+  </div>
+</div>

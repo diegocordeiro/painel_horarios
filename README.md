@@ -56,6 +56,12 @@ FET (exporta .csv) → import_versoes → render_static_site → build/ → GitH
 - **Cores estáveis por disciplina** (derivadas de um hash do nome), com legenda na
   grade;
 - **Modos de visualização**: Completo, Condensado e Super condensado;
+- **Exportação para PDF** pela impressão do navegador (escolha “Salvar como PDF”): o
+  botão “Exportar PDF” aparece na grade por turma, professor e sala e no dashboard de
+  carga horária. É 100% client-side (`window.print()` + `@media print` em
+  `static/js/main.js` e `static/css/main.css`), sem dependências novas e funcionando no
+  site estático; a grade é impressa completa (mesmo no modo condensado), com cabeçalho
+  de identificação (título, versão e data/hora) e em A4 paisagem;
 - **Tema claro/escuro** persistido no `localStorage` e aderente ao
   `prefers-color-scheme`;
 - **Busca client-side** na listagem de turmas (ignora acentos e filtra por curso,

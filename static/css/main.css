@@ -1400,3 +1400,193 @@ blockquote {
   }
 }
 
+/* ===== Exportação para PDF (impressão do navegador) ===== */
+/* O botão "Exportar PDF" chama window.print(); nada é gerado no servidor.
+   O cabeçalho impresso existe apenas no papel: na tela fica oculto. */
+.print-head {
+  display: none;
+}
+
+@page {
+  size: A4 landscape;
+  margin: 8mm;
+}
+
+@media print {
+
+  /* A impressão sai sempre no tema claro, mesmo com o tema escuro salvo. */
+  :root {
+    --bg: #ffffff;
+    --surface: #ffffff;
+    --card-bg: #ffffff;
+    --text: #111827;
+    --muted: #4b5563;
+    --border: #9ca3af;
+    --primary: #1f6f8b;
+    --primary-soft: #e4f1f5;
+    --accent: #f3f4f6;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  body {
+    background: #fff;
+  }
+
+  /* Nada de navegação, controles, hero ou botões no PDF. */
+  .site-header,
+  .version-banner,
+  .site-footer,
+  .breadcrumb,
+  .timetable-toolbar,
+  .carga-toolbar,
+  .no-print,
+  .carga-link,
+  .carga-caret {
+    display: none !important;
+  }
+
+  .container {
+    width: 100%;
+    max-width: none;
+  }
+
+  .site-main {
+    padding: 0;
+    min-height: 0;
+  }
+
+  /* Cabeçalho impresso (título, versão e data/hora da geração). */
+  .print-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin: 0 0 .6rem;
+    padding-bottom: .35rem;
+    border-bottom: 2px solid var(--primary);
+  }
+
+  .print-head-main strong {
+    display: block;
+    font-size: 1.05rem;
+  }
+
+  .print-head-main span,
+  .print-head-meta {
+    font-size: .8rem;
+    color: var(--muted);
+  }
+
+  .print-head-meta {
+    text-align: right;
+  }
+
+  .print-head-meta span {
+    display: block;
+  }
+
+  /* A grade imprime sempre completa: o modo "super condensado" esconde
+     linhas/colunas com display:none inline. */
+  .timetable .time-row {
+    display: table-row !important;
+  }
+
+  .timetable .day-cell,
+  .timetable .day-head {
+    display: table-cell !important;
+  }
+
+  .timetable {
+    border-color: var(--border);
+    border-radius: 0;
+  }
+
+  .timetable th,
+  .timetable td {
+    border-color: var(--border);
+  }
+
+  /* Compacta a grade para caber os 15 horários em uma única folha: evita que o
+     horário ("07:00 - 08:00") quebre em duas linhas e infle a altura das linhas. */
+  .timetable {
+    /* `auto` + `width: 1%` na coluna do horário: a coluna fica exatamente com a
+       largura do texto. Com `fixed` (regra da tela) o rótulo do horário, que é
+       `nowrap`, transbordava para a coluna de segunda-feira. */
+    table-layout: auto;
+    font-size: .66rem;
+  }
+
+  .timetable .time-col {
+    width: 1%;
+    padding: .1rem .15rem;
+    font-size: .62rem;
+    white-space: nowrap;
+  }
+
+  .timetable .day-head {
+    position: static;
+    padding: .18rem .15rem;
+  }
+
+  .class-card {
+    padding: .14rem .25rem;
+    font-size: .62rem;
+    line-height: 1.18;
+    gap: 0;
+  }
+
+  .class-card .class-tag {
+    font-size: .58rem;
+  }
+
+  /* Na página da turma não faz sentido repetir a turma em cada aula (e vice-versa
+     para professor e sala): a dimensão redundante sai do PDF. */
+  .timetable.kind-turma .class-turmas,
+  .timetable.kind-professor .class-teachers,
+  .timetable.kind-sala .class-room {
+    display: none;
+  }
+
+  .subject-legend {
+    margin-top: .4rem;
+    font-size: .68rem;
+  }
+
+  .subject-legend ul {
+    gap: .15rem .6rem;
+  }
+
+  /* Repete o cabeçalho dos dias no topo de cada página. */
+  thead {
+    display: table-header-group;
+  }
+
+  tr,
+  .class-card,
+  .subject-legend li,
+  .carga-kpi,
+  .carga-group {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .carga-table-wrap {
+    overflow: visible;
+    border-color: var(--border);
+  }
+
+  .carga-expand {
+    cursor: default;
+  }
+
+  a {
+    color: var(--text);
+    text-decoration: none;
+  }
+}
+
